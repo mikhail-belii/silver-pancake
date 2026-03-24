@@ -1,0 +1,21 @@
+package silverpancake.application.util;
+
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties(prefix = "app.errors")
+@Data
+public class ErrorProperties {
+    private String userNotFound;
+    private String fileNotFound;
+    private String invalidAccessToken;
+    private String invalidRefreshToken;
+    private String userWithEmailExists;
+    private String incorrectEmailOrPassword;
+    private String fileEmpty;
+    private String fileFailedSave;
+    private String fileFailedRetrieve;
+    private String fileSize;
+    private String fileExtensionRequired;
+    private String fileAllowedExtensions;
+}

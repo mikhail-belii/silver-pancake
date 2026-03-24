@@ -1,0 +1,30 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="CreateTeamTable" author="MSidorov">
+        <createTable tableName="team">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_team"/>
+            </column>
+            <column name="task_id" type="UUID"/>
+            <column name="captain_id" type="UUID"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="AddTeamCaptainForeignKey" author="MSidorov">
+        <addForeignKeyConstraint baseTableName="team"
+                                 baseColumnNames="captain_id"
+                                 constraintName="fk_team_captain"
+                                 referencedTableName="user"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="team"
+                                 baseColumnNames="task_id"
+                                 constraintName="fk_team_task"
+                                 referencedTableName="task"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>

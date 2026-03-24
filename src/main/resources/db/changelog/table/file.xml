@@ -1,0 +1,48 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="CreateFileTable" author="MSidorov">
+        <createTable tableName="file">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_file"/>
+            </column>
+            <column name="path" type="VARCHAR(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="original_name" type="VARCHAR(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="uploader_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="task_id" type="UUID"/>
+            <column name="task_answer_id" type="UUID"/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="AddFileForeignKeys" author="MSidorov">
+        <addForeignKeyConstraint baseTableName="file"
+                                 baseColumnNames="uploader_id"
+                                 constraintName="fk_file_uploader"
+                                 referencedTableName="user"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="file"
+                                 baseColumnNames="task_id"
+                                 constraintName="fk_file_task"
+                                 referencedTableName="task"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="file"
+                                 baseColumnNames="task_answer_id"
+                                 constraintName="fk_file_task_answer"
+                                 referencedTableName="task_answer"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,47 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="CreateTaskTable" author="MSidorov">
+        <createTable tableName="task">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_task"/>
+            </column>
+            <column name="text" type="VARCHAR(2048)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="course_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="author_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deadline" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_score" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="AddTaskForeignKeys" author="MSidorov">
+        <addForeignKeyConstraint baseTableName="task"
+                                 baseColumnNames="course_id"
+                                 constraintName="fk_task_course"
+                                 referencedTableName="course"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="task"
+                                 baseColumnNames="author_id"
+                                 constraintName="fk_task_author"
+                                 referencedTableName="user"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>

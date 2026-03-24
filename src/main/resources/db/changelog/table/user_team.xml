@@ -1,0 +1,37 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="CreateUserTeamTable" author="MSidorov">
+        <createTable tableName="user_team">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_user_team"/>
+            </column>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="team_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="AddUserTeamForeignKeys" author="MSidorov">
+        <addForeignKeyConstraint baseTableName="user_team"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_user_team_user"
+                                 referencedTableName="user"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="user_team"
+                                 baseColumnNames="team_id"
+                                 constraintName="fk_user_team_team"
+                                 referencedTableName="team"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>

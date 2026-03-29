@@ -1,0 +1,140 @@
+name: Build & Deploy to VPS
+
+on:
+  push:
+    branches: ["main"]
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY_NAMESPACE: ${{ github.repository_owner }}
+  IMAGE_NAME: silver-pancake
+  CONTAINER_NAME: silver-pancake
+  DB_CONTAINER_NAME: silver-pancake-db
+  DB_VOLUME_NAME: silver-pancake-postgres-data
+  FILES_VOLUME_NAME: silver-pancake-files
+  NETWORK_NAME: silver-pancake-network
+  APP_PORT: 8024
+  POSTGRES_DB: silverpancake_db
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ env.REGISTRY_NAMESPACE }}/${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ env.REGISTRY_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha,scope=silver-pancake
+          cache-to: type=gha,mode=max,scope=silver-pancake
+          provenance: false
+          sbom: false
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build_and_push
+    steps:
+      - name: Setup SSH key
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts
+
+      - name: Deploy application
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          REGISTRY_NAMESPACE: ${{ env.REGISTRY_NAMESPACE }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          CONTAINER_NAME: ${{ env.CONTAINER_NAME }}
+          DB_CONTAINER_NAME: ${{ env.DB_CONTAINER_NAME }}
+          DB_VOLUME_NAME: ${{ env.DB_VOLUME_NAME }}
+          FILES_VOLUME_NAME: ${{ env.FILES_VOLUME_NAME }}
+          NETWORK_NAME: ${{ env.NETWORK_NAME }}
+          APP_PORT: ${{ env.APP_PORT }}
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+        run: |
+          ssh "$VPS_USER@$VPS_HOST" \
+            "REGISTRY_NAMESPACE='$REGISTRY_NAMESPACE' IMAGE_NAME='$IMAGE_NAME' CONTAINER_NAME='$CONTAINER_NAME' DB_CONTAINER_NAME='$DB_CONTAINER_NAME' DB_VOLUME_NAME='$DB_VOLUME_NAME' FILES_VOLUME_NAME='$FILES_VOLUME_NAME' NETWORK_NAME='$NETWORK_NAME' APP_PORT='$APP_PORT' POSTGRES_DB='$POSTGRES_DB' POSTGRES_USER='$POSTGRES_USER' POSTGRES_PASSWORD='$POSTGRES_PASSWORD' GHCR_USERNAME='${{ github.actor }}' GHCR_TOKEN='${{ secrets.GITHUB_TOKEN }}' bash -s" <<'EOF'
+            set -e
+
+            flock -n /tmp/silver-pancake-deploy.lock bash -lc '
+              set -e
+
+              printf "%s" "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
+              docker pull ghcr.io/$REGISTRY_NAMESPACE/$IMAGE_NAME:latest
+
+              docker network inspect $NETWORK_NAME >/dev/null 2>&1 || docker network create $NETWORK_NAME
+              docker volume inspect $DB_VOLUME_NAME >/dev/null 2>&1 || docker volume create $DB_VOLUME_NAME
+              docker volume inspect $FILES_VOLUME_NAME >/dev/null 2>&1 || docker volume create $FILES_VOLUME_NAME
+
+              if ! docker ps -a --format "{{.Names}}" | grep -qx "$DB_CONTAINER_NAME"; then
+                docker run -d \
+                  --name $DB_CONTAINER_NAME \
+                  --restart unless-stopped \
+                  --network $NETWORK_NAME \
+                  -e POSTGRES_DB="$POSTGRES_DB" \
+                  -e POSTGRES_USER="$POSTGRES_USER" \
+                  -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
+                  -v $DB_VOLUME_NAME:/var/lib/postgresql/data \
+                  postgres:17-alpine
+              else
+                docker start $DB_CONTAINER_NAME >/dev/null 2>&1 || true
+              fi
+
+              until docker exec $DB_CONTAINER_NAME pg_isready -U "$POSTGRES_USER" -d postgres >/dev/null 2>&1; do
+                echo "Waiting for postgres..."
+                sleep 2
+              done
+
+              if [ "$(docker exec $DB_CONTAINER_NAME psql -U "$POSTGRES_USER" -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname = '\''$POSTGRES_DB'\''")" != "1" ]; then
+                docker exec $DB_CONTAINER_NAME psql -U "$POSTGRES_USER" -d postgres -c "CREATE DATABASE \"$POSTGRES_DB\";"
+              fi
+
+              docker rm -f $CONTAINER_NAME >/dev/null 2>&1 || true
+
+              docker run -d \
+                --name $CONTAINER_NAME \
+                --restart unless-stopped \
+                --network $NETWORK_NAME \
+                -p $APP_PORT:$APP_PORT \
+                -v $FILES_VOLUME_NAME:/app/files \
+                -e SERVER_PORT="$APP_PORT" \
+                -e SPRING_DATASOURCE_URL="jdbc:postgresql://$DB_CONTAINER_NAME:5432/$POSTGRES_DB" \
+                -e SPRING_DATASOURCE_USERNAME="$POSTGRES_USER" \
+                -e SPRING_DATASOURCE_PASSWORD="$POSTGRES_PASSWORD" \
+                -e FILE_STORAGE_ROOT="/app/files/uploads" \
+                ghcr.io/$REGISTRY_NAMESPACE/$IMAGE_NAME:latest
+            '
+          EOF

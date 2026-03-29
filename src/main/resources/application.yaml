@@ -1,3 +1,7 @@
+server:
+  port: ${SERVER_PORT:8024}
+  forward-headers-strategy: framework
+
 spring:
   config:
     import: optional:file:.env[.properties]
@@ -29,6 +33,13 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 12MB
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+  api-docs:
+    path: /v3/api-docs
 
 app:
   errors:

@@ -1,0 +1,9 @@
+.git
+.github
+.idea
+target
+files
+*.iml
+README*
+docker-compose.yaml
+init-db.sh

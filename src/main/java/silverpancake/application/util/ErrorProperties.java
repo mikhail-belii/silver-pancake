@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ErrorProperties {
     private String userNotFound;
     private String fileNotFound;
+    private String courseNotFound;
     private String invalidAccessToken;
     private String invalidRefreshToken;
     private String userWithEmailExists;
@@ -18,4 +19,7 @@ public class ErrorProperties {
     private String fileSize;
     private String fileExtensionRequired;
     private String fileAllowedExtensions;
+    private String generateCodeFailed;
+    private String security;
+    private String userNotCourseMember;
 }

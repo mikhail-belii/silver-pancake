@@ -19,7 +19,7 @@ public class UserController {
     @GetMapping
     @Operation(summary = "Get my profile")
     public Response<UserModel> getMyProfile(@RequestAttribute("authModel") AuthorizationModel authModel) {
-        return Response.success(userService.getUserProfile(UUID.fromString(authModel.getUserId())));
+        return Response.success(userService.getUserProfile(authModel.getUserId()));
     }
 
     @GetMapping("/{userId}")

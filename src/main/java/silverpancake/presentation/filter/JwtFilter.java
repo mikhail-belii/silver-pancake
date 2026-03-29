@@ -12,6 +12,7 @@ import silverpancake.application.util.JwtUtil;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Component
 @AllArgsConstructor
@@ -45,7 +46,7 @@ public class JwtFilter implements Filter {
             }
 
             var claims = jwtUtil.parseAccessClaims(token);
-            var authModel = new AuthorizationModel(claims.get("user_id", String.class), token);
+            var authModel = new AuthorizationModel(UUID.fromString(claims.get("user_id", String.class)), token);
 
             request.setAttribute("authModel", authModel);
         } catch (Exception e) {

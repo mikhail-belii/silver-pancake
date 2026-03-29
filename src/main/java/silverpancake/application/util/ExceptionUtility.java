@@ -24,6 +24,12 @@ public class ExceptionUtility {
         return notFoundEx;
     }
 
+    public ExceptionWrapper courseNotFoundException() {
+        var notFoundEx = new ExceptionWrapper(new EntityNotFoundException());
+        notFoundEx.setErrorMessage(errorProperties.getFileNotFound());
+        return notFoundEx;
+    }
+
     public ExceptionWrapper userWithEmailExistsException() {
         var badRequestEx = new ExceptionWrapper(new BadRequestException());
         badRequestEx.setErrorMessage(errorProperties.getUserWithEmailExists());
@@ -72,6 +78,18 @@ public class ExceptionUtility {
         return authEx;
     }
 
+    public ExceptionWrapper securityException() {
+        var secEx = new ExceptionWrapper(new SecurityException());
+        secEx.setErrorMessage(errorProperties.getSecurity());
+        return secEx;
+    }
+
+    public ExceptionWrapper userNotCourseMemberException() {
+        var secEx = new ExceptionWrapper(new SecurityException());
+        secEx.setErrorMessage(errorProperties.getUserNotCourseMember());
+        return secEx;
+    }
+
     public ExceptionWrapper fileFailedSaveException() {
         var ex = new ExceptionWrapper(new Exception());
         ex.setErrorMessage(errorProperties.getFileFailedSave());
@@ -81,6 +99,12 @@ public class ExceptionUtility {
     public ExceptionWrapper fileFailedRetrieveException() {
         var ex = new ExceptionWrapper(new Exception());
         ex.setErrorMessage(errorProperties.getFileFailedRetrieve());
+        return ex;
+    }
+
+    public ExceptionWrapper generateCodeFailedException() {
+        var ex = new ExceptionWrapper(new Exception());
+        ex.setErrorMessage(errorProperties.getGenerateCodeFailed());
         return ex;
     }
 }

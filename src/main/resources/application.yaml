@@ -34,6 +34,7 @@ app:
   errors:
     user-not-found: Пользователь не найден
     file-not-found: Файл не найден
+    course-not-found: Курс не найден
 
     invalid-access-token: Токен доступа некорректный или истек
     invalid-refresh-token: Токен обновления некорректный или истек
@@ -45,6 +46,9 @@ app:
     file-size: Размер файла должен быть меньше или равен 10 МБ
     file-extension-required: Файл должен иметь расширение
     file-allowed-extensions: "Разрешенные расширения файла: txt, pdf, docx, png, jpg"
+    generate-code-failed: Не удалось сгенерировать код присоединения. Попробуйте еще раз
+    security: У вас недостаточно прав для выполнения этого действия
+    user-not-course-member: Вы не являетесь участником курса
 
 jwt:
   secret:

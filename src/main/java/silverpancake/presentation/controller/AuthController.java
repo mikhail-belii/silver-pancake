@@ -41,7 +41,7 @@ public class AuthController {
     @PostMapping("/logout")
     @Operation(summary = "Logout")
     public Response<Void> logout(@RequestAttribute("authModel") AuthorizationModel authModel) {
-        authService.logout(UUID.fromString(authModel.getUserId()), authModel.getAccessToken());
+        authService.logout(authModel.getUserId(), authModel.getAccessToken());
         return Response.success();
     }
 }

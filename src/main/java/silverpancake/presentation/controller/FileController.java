@@ -37,7 +37,7 @@ public class FileController {
         validateSize(file);
         validateExtension(file);
 
-        return Response.success(fileService.upload(UUID.fromString(authModel.getUserId()), file));
+        return Response.success(fileService.upload(authModel.getUserId(), file));
     }
 
     @GetMapping("/{fileId}")

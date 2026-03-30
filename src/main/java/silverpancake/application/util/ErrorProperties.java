@@ -22,4 +22,5 @@ public class ErrorProperties {
     private String generateCodeFailed;
     private String security;
     private String userNotCourseMember;
+    private String userAlreadyCourseMember;
 }

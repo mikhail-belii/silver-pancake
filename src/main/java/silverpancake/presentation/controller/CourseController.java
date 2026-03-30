@@ -33,4 +33,11 @@ public class CourseController {
                                           @RequestBody CourseEditModel courseEditModel) {
         return Response.success(courseService.editCourse(authModel.getUserId(), courseId, courseEditModel));
     }
+
+    @PostMapping(value = "/join/{joinCode}")
+    @Operation(summary = "Join course by code")
+    public Response<CourseModel> joinCourseByCode(@RequestAttribute("authModel") AuthorizationModel authModel,
+                                                  @PathVariable String joinCode) {
+        return Response.success(courseService.joinCourseByCode(authModel.getUserId(), joinCode));
+    }
 }

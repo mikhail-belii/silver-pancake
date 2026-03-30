@@ -82,8 +82,21 @@ public class CourseServiceImpl  implements CourseService {
     }
 
     @Override
-    public void joinCourseByCode(UUID requestingUserId, String code) {
+    public CourseModel joinCourseByCode(UUID requestingUserId, String code) {
+        var user = userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var course = courseRepository.findByJoinCode(code)
+                .orElseThrow(exceptionUtility::courseNotFoundException);
 
+        if (CourseUtility.getUserCourse(course, user).isPresent()) {
+            throw exceptionUtility.userAlreadyCourseMemberException();
+        }
+
+        var userCourse = createUserCourseOnCourseJoin(course, user);
+
+        userCourseRepository.save(userCourse);
+
+        return courseMapper.toModel(course, userCourse.getUserRole());
     }
 
     @Override
@@ -109,6 +122,14 @@ public class CourseServiceImpl  implements CourseService {
                 .setCourse(newCourse)
                 .setUser(creator)
                 .setUserRole(UserCourseRole.HEAD_TEACHER)
+                .setCreatedAt(LocalDateTime.now());
+    }
+
+    private UserCourse createUserCourseOnCourseJoin(Course course, User joiningUser) {
+        return new UserCourse()
+                .setCourse(course)
+                .setUser(joiningUser)
+                .setUserRole(UserCourseRole.STUDENT)
                 .setCreatedAt(LocalDateTime.now());
     }
 }

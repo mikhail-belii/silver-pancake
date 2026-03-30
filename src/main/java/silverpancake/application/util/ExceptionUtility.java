@@ -18,15 +18,9 @@ public class ExceptionUtility {
         return notFoundEx;
     }
 
-    public ExceptionWrapper fileNotFoundException() {
-        var notFoundEx = new ExceptionWrapper(new EntityNotFoundException());
-        notFoundEx.setErrorMessage(errorProperties.getFileNotFound());
-        return notFoundEx;
-    }
-
     public ExceptionWrapper courseNotFoundException() {
         var notFoundEx = new ExceptionWrapper(new EntityNotFoundException());
-        notFoundEx.setErrorMessage(errorProperties.getFileNotFound());
+        notFoundEx.setErrorMessage(errorProperties.getCourseNotFound());
         return notFoundEx;
     }
 
@@ -63,6 +57,12 @@ public class ExceptionUtility {
     public ExceptionWrapper fileAllowedExtensionsException() {
         var badRequestEx = new ExceptionWrapper(new BadRequestException());
         badRequestEx.setErrorMessage(errorProperties.getFileAllowedExtensions());
+        return badRequestEx;
+    }
+
+    public ExceptionWrapper userAlreadyCourseMemberException() {
+        var badRequestEx = new ExceptionWrapper(new BadRequestException());
+        badRequestEx.setErrorMessage(errorProperties.getUserAlreadyCourseMember());
         return badRequestEx;
     }
 

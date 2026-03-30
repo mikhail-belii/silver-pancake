@@ -12,7 +12,7 @@ public interface CourseService {
     List<UserCourseModel> getCourseUsers(UUID requestingUserId, UUID courseId);
     CourseModel getConcreteCourse(UUID requestingUserId, UUID courseId);
     List<CourseShortModel> getUserCourses(UUID requestingUserId, boolean isArchived);
-    void joinCourseByCode(UUID requestingUserId, String code);
+    CourseModel joinCourseByCode(UUID requestingUserId, String code);
     void changeUserRoleOnCourse(
             UUID requestingUserId,
             UUID courseId,

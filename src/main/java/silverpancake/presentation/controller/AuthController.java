@@ -12,8 +12,6 @@ import silverpancake.application.model.user.UserLoginModel;
 import silverpancake.application.model.user.UserRegisterModel;
 import silverpancake.application.service.AuthService;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("api/auth")
 @AllArgsConstructor

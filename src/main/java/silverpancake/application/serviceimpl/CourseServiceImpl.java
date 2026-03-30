@@ -86,7 +86,14 @@ public class CourseServiceImpl  implements CourseService {
 
     @Override
     public CourseModel getConcreteCourse(UUID requestingUserId, UUID courseId) {
-        return null;
+        var user =  userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var course = courseRepository.findById(courseId)
+                .orElseThrow(exceptionUtility::courseNotFoundException);
+        var userCourse = userCourseRepository.findByUserAndCourse(user.getId(), course.getId())
+                .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
+
+        return courseMapper.toModel(course, userCourse.getUserRole());
     }
 
     @Override

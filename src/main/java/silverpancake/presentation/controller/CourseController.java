@@ -63,4 +63,11 @@ public class CourseController {
     public Response<CourseShortListModel> getUserCourses(@RequestAttribute("authModel") AuthorizationModel authModel) {
         return Response.success(courseService.getUserCourses(authModel.getUserId()));
     }
+
+    @GetMapping(value = "/{courseId}")
+    @Operation(summary = "Get concrete course")
+    public Response<CourseModel> getConcreteCourse(@RequestAttribute("authModel") AuthorizationModel authModel,
+                                                   @PathVariable("courseId") UUID courseId) {
+        return Response.success(courseService.getConcreteCourse(authModel.getUserId(), courseId));
+    }
 }

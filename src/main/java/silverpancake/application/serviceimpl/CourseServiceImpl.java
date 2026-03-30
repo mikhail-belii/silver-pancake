@@ -90,8 +90,14 @@ public class CourseServiceImpl  implements CourseService {
     }
 
     @Override
-    public CourseShortListModel getUserCourses(UUID requestingUserId, boolean isArchived) {
-        return null;
+    public CourseShortListModel getUserCourses(UUID requestingUserId) {
+        var user = userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+
+        return new CourseShortListModel(user.getUserCourses()
+                .stream()
+                .map(uc -> courseMapper.toShortModel(uc.getCourse()))
+                .toList());
     }
 
     @Override

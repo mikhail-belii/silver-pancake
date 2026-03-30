@@ -11,7 +11,7 @@ public interface CourseService {
     CourseModel editCourse(UUID requestingUserId, UUID courseId, CourseEditModel courseEditModel);
     UserCourseListModel getCourseUsers(UUID requestingUserId, UUID courseId);
     CourseModel getConcreteCourse(UUID requestingUserId, UUID courseId);
-    CourseShortListModel getUserCourses(UUID requestingUserId, boolean isArchived);
+    CourseShortListModel getUserCourses(UUID requestingUserId);
     CourseModel joinCourseByCode(UUID requestingUserId, String code);
     void changeUserRoleOnCourse(
             UUID requestingUserId,

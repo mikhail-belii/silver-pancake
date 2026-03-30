@@ -6,10 +6,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import silverpancake.application.model.auth.AuthorizationModel;
 import silverpancake.application.model.common.Response;
-import silverpancake.application.model.course.CourseCreateModel;
-import silverpancake.application.model.course.CourseEditModel;
-import silverpancake.application.model.course.CourseModel;
-import silverpancake.application.model.course.UserCourseListModel;
+import silverpancake.application.model.course.*;
 import silverpancake.application.service.CourseService;
 import silverpancake.domain.entity.user.UserCourseRole;
 
@@ -59,5 +56,11 @@ public class CourseController {
     public Response<UserCourseListModel> getCourseUsers(@RequestAttribute("authModel") AuthorizationModel authModel,
                                                         @PathVariable("courseId") UUID courseId) {
         return Response.success(courseService.getCourseUsers(authModel.getUserId(), courseId));
+    }
+
+    @GetMapping(value = "/my")
+    @Operation(summary = "Get user courses")
+    public Response<CourseShortListModel> getUserCourses(@RequestAttribute("authModel") AuthorizationModel authModel) {
+        return Response.success(courseService.getUserCourses(authModel.getUserId()));
     }
 }

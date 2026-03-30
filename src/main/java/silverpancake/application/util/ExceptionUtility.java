@@ -18,6 +18,12 @@ public class ExceptionUtility {
         return notFoundEx;
     }
 
+    public ExceptionWrapper filesNotFoundException() {
+        var notFoundEx = new ExceptionWrapper(new EntityNotFoundException());
+        notFoundEx.setErrorMessage(errorProperties.getFilesNotFound());
+        return notFoundEx;
+    }
+
     public ExceptionWrapper courseNotFoundException() {
         var notFoundEx = new ExceptionWrapper(new EntityNotFoundException());
         notFoundEx.setErrorMessage(errorProperties.getCourseNotFound());
@@ -66,6 +72,30 @@ public class ExceptionUtility {
         return badRequestEx;
     }
 
+    public ExceptionWrapper fileAlreadyAttachedException() {
+        var badRequestEx = new ExceptionWrapper(new BadRequestException());
+        badRequestEx.setErrorMessage(errorProperties.getFileAlreadyAttached());
+        return badRequestEx;
+    }
+
+    public ExceptionWrapper notDraftTypeAndDraftTimeException() {
+        var badRequestEx = new ExceptionWrapper(new BadRequestException());
+        badRequestEx.setErrorMessage(errorProperties.getNotDraftTypeAndDraftTime());
+        return badRequestEx;
+    }
+
+    public ExceptionWrapper draftTypeAndNotDraftTimeException() {
+        var badRequestEx = new ExceptionWrapper(new BadRequestException());
+        badRequestEx.setErrorMessage(errorProperties.getDraftTypeAndNotDraftTime());
+        return badRequestEx;
+    }
+
+    public ExceptionWrapper draftTimeAfterDeadlineException() {
+        var badRequestEx = new ExceptionWrapper(new BadRequestException());
+        badRequestEx.setErrorMessage(errorProperties.getDraftTimeAfterDeadline());
+        return badRequestEx;
+    }
+
     public ExceptionWrapper invalidAccessTokenException() {
         var authEx = new ExceptionWrapper(new AuthException());
         authEx.setErrorMessage(errorProperties.getInvalidAccessToken());
@@ -93,6 +123,12 @@ public class ExceptionUtility {
     public ExceptionWrapper targetUserNotCourseMemberException() {
         var secEx = new ExceptionWrapper(new SecurityException());
         secEx.setErrorMessage(errorProperties.getTargetUserNotCourseMember());
+        return secEx;
+    }
+
+    public ExceptionWrapper attachOnlyYourFilesException() {
+        var secEx = new ExceptionWrapper(new SecurityException());
+        secEx.setErrorMessage(errorProperties.getAttachOnlyYourFiles());
         return secEx;
     }
 

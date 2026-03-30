@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ErrorProperties {
     private String userNotFound;
     private String fileNotFound;
+    private String filesNotFound;
     private String courseNotFound;
     private String invalidAccessToken;
     private String invalidRefreshToken;
@@ -24,4 +25,9 @@ public class ErrorProperties {
     private String targetUserNotCourseMember;
     private String requestingUserNotCourseMember;
     private String userAlreadyCourseMember;
+    private String attachOnlyYourFiles;
+    private String fileAlreadyAttached;
+    private String notDraftTypeAndDraftTime;
+    private String draftTypeAndNotDraftTime;
+    private String draftTimeAfterDeadline;
 }

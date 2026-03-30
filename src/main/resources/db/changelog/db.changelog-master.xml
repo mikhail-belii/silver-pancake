@@ -8,7 +8,9 @@
     <include file="db/changelog/table/user.xml"/>
     <include file="db/changelog/table/course.xml"/>
     <include file="db/changelog/table/task.xml"/>
+    <include file="db/changelog/table/task2.xml"/>
     <include file="db/changelog/table/team.xml"/>
+    <include file="db/changelog/table/team2.xml"/>
     <include file="db/changelog/table/user_course.xml"/>
     <include file="db/changelog/table/task_answer.xml"/>
     <include file="db/changelog/table/user_team.xml"/>

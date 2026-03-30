@@ -22,6 +22,8 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    private String title;
+
     @Length(max = 2048)
     private String text;
 
@@ -42,6 +44,10 @@ public class Task {
 
     private LocalDateTime deadline;
 
+    private LocalDateTime draftStartTime;
+
     private Integer maxScore;
 
+    @Enumerated(EnumType.STRING)
+    private TeamFormationType teamFormationType;
 }

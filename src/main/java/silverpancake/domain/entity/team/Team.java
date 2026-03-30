@@ -29,4 +29,6 @@ public class Team {
 
     @OneToMany(mappedBy = "team")
     private List<UserTeam> teamMembers;
+
+    private String name;
 }

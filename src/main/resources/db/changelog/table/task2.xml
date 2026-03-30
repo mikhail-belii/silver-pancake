@@ -1,0 +1,18 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="AddTitleAndDraftStartTimeAndTeamFormationTypeToTask" author="MSidorov">
+        <addColumn tableName="task">
+            <column name="title" type="VARCHAR(255)"/>
+        </addColumn>
+        <addColumn tableName="task">
+            <column name="draft_start_time" type="TIMESTAMP"/>
+        </addColumn>
+        <addColumn tableName="task">
+            <column name="team_formation_type" type="VARCHAR(32)"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

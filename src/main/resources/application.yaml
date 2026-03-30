@@ -45,6 +45,7 @@ app:
   errors:
     user-not-found: Пользователь не найден
     file-not-found: Файл не найден
+    files-not-found: Один или несколько файлов не найдены
     course-not-found: Курс не найден
 
     invalid-access-token: Токен доступа некорректный или истек
@@ -62,6 +63,11 @@ app:
     requesting-user-not-course-member: Вы не являетесь участником курса
     target-user-not-course-member: Пользователь не является участником курса
     user-already-course-member: Вы уже являетесь участником курса
+    attach-only-your-files: Вы можете прикреплять только файлы, загруженные вами
+    file-already-attached: Файл уже прикреплен
+    not-draft-type-and-draft-time: Времени драфта не должно быть при указанном типе не "Драфт"
+    draft-type-and-not-draft-time: При указанном типе "Драфт" должно быть назначено время драфта
+    draft-time-after-deadline: Драфт должен происходить до сдачи задания
 
 jwt:
   secret:

@@ -9,9 +9,11 @@ import silverpancake.application.model.common.Response;
 import silverpancake.application.model.course.CourseCreateModel;
 import silverpancake.application.model.course.CourseEditModel;
 import silverpancake.application.model.course.CourseModel;
+import silverpancake.application.model.course.UserCourseListModel;
 import silverpancake.application.service.CourseService;
 import silverpancake.domain.entity.user.UserCourseRole;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -50,5 +52,12 @@ public class CourseController {
                                                  @PathVariable("newRole") UserCourseRole newUserRole) {
         courseService.changeUserRoleOnCourse(authModel.getUserId(), courseId, userId, newUserRole);
         return Response.success();
+    }
+
+    @GetMapping(value = "/{courseId}/user/list")
+    @Operation(summary = "Get course users")
+    public Response<UserCourseListModel> getCourseUsers(@RequestAttribute("authModel") AuthorizationModel authModel,
+                                                        @PathVariable("courseId") UUID courseId) {
+        return Response.success(courseService.getCourseUsers(authModel.getUserId(), courseId));
     }
 }

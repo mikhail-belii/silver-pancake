@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import silverpancake.application.mapper.CourseMapper;
+import silverpancake.application.mapper.UserCourseMapper;
 import silverpancake.application.model.course.*;
 import silverpancake.application.repository.CourseRepository;
 import silverpancake.application.repository.UserCourseRepository;
@@ -67,8 +68,20 @@ public class CourseServiceImpl  implements CourseService {
     }
 
     @Override
-    public List<UserCourseModel> getCourseUsers(UUID requestingUserId, UUID courseId) {
-        return List.of();
+    public UserCourseListModel getCourseUsers(UUID requestingUserId, UUID courseId) {
+        var user = userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var course = courseRepository.findById(courseId)
+                .orElseThrow(exceptionUtility::courseNotFoundException);
+
+        if (CourseUtility.getUserCourse(course, user).isEmpty()) {
+            throw exceptionUtility.securityException();
+        }
+
+        return new UserCourseListModel(course.getCourseUsers()
+                .stream()
+                .map(UserCourseMapper::toModel)
+                .toList());
     }
 
     @Override
@@ -77,8 +90,8 @@ public class CourseServiceImpl  implements CourseService {
     }
 
     @Override
-    public List<CourseShortModel> getUserCourses(UUID requestingUserId, boolean isArchived) {
-        return List.of();
+    public CourseShortListModel getUserCourses(UUID requestingUserId, boolean isArchived) {
+        return null;
     }
 
     @Override

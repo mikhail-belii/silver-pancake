@@ -47,6 +47,7 @@ app:
     file-not-found: Файл не найден
     files-not-found: Один или несколько файлов не найдены
     course-not-found: Курс не найден
+    task-not-found: Задание не найдено
 
     invalid-access-token: Токен доступа некорректный или истек
     invalid-refresh-token: Токен обновления некорректный или истек

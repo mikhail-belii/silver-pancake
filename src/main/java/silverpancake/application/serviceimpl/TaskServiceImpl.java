@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import silverpancake.application.mapper.TaskMapper;
 import silverpancake.application.model.task.TaskCreateModel;
+import silverpancake.application.model.task.TaskEditModel;
 import silverpancake.application.model.task.TaskModel;
 import silverpancake.application.repository.*;
 import silverpancake.application.service.TaskService;
@@ -61,6 +62,53 @@ public class TaskServiceImpl implements TaskService {
         task = taskRepository.save(task);
 
         var files = buildTaskFiles(taskCreateModel.getFileIds(), task, user, null);
+        task.setFiles(files);
+        if (files != null && !files.isEmpty()) {
+            fileRepository.saveAll(files);
+        }
+
+        taskRepository.saveAndFlush(task);
+
+        return TaskMapper.toModel(task, user);
+    }
+
+    @Override
+    public TaskModel editTask(UUID requestingUserId, UUID taskId, TaskEditModel taskEditModel) {
+        var user = userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var task = taskRepository.findById(taskId)
+                .orElseThrow(exceptionUtility::taskNotFoundException);
+        var course = courseRepository.findById(task.getCourse().getId())
+                .orElseThrow(exceptionUtility::courseNotFoundException);
+        var userCourse = userCourseRepository.findByUserAndCourse(user.getId(), course.getId())
+                .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
+
+        if (userCourse.getUserRole().equals(UserCourseRole.STUDENT)) {
+            throw exceptionUtility.securityException();
+        }
+
+        if (!task.getTeamFormationType().equals(TeamFormationType.DRAFT) && taskEditModel.getDraftStartTime() != null) {
+            throw exceptionUtility.notDraftTypeAndDraftTimeException();
+        }
+
+        if (task.getTeamFormationType().equals(TeamFormationType.DRAFT) && taskEditModel.getDraftStartTime() == null) {
+            throw exceptionUtility.draftTypeAndNotDraftTimeException();
+        }
+
+        if (taskEditModel.isDraftStartTimeAfterDeadline()) {
+            throw exceptionUtility.draftTimeAfterDeadlineException();
+        }
+
+        task.setTitle(taskEditModel.getTitle())
+                .setText(taskEditModel.getText())
+                .setMaxScore(taskEditModel.getMaxScore())
+                .setDeadline(taskEditModel.getDeadlineTime())
+                .setDraftStartTime(taskEditModel.getDraftStartTime())
+                .setUpdatedAt(LocalDateTime.now());
+
+        task = taskRepository.save(task);
+
+        var files = buildTaskFiles(taskEditModel.getFileIds(), task, user, taskId);
         task.setFiles(files);
         if (files != null && !files.isEmpty()) {
             fileRepository.saveAll(files);

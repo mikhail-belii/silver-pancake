@@ -5,7 +5,6 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 import silverpancake.domain.entity.task.TeamFormationType;
 
 import java.time.LocalDateTime;
@@ -15,7 +14,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TaskCreateModel {
+public class TaskEditModel {
     @NotBlank
     @Size(min = 4, max = 128)
     private String title;
@@ -29,30 +28,10 @@ public class TaskCreateModel {
     @NotNull
     @Future(message = "Дата дедлайна должна быть в будущем")
     private LocalDateTime deadlineTime;
-    @NotNull
-    private TeamFormationType teamFormationType;
-    @NotNull
-    @Min(value = 1, message = "Количество команд должно находиться в диапазоне от 1 до 50")
-    @Max(value = 50, message = "Количество команд должно находиться в диапазоне от 1 до 50")
-    private Integer teamsAmount;
     @Future(message = "Дата драфта должна быть в будущем")
     private LocalDateTime draftStartTime;
     @NotNull
     private List<UUID> fileIds;
-
-    @JsonIgnore
-    public boolean isNotDraftTypeAndDraftTime() {
-        return getTeamFormationType() != null
-                && !getTeamFormationType().equals(TeamFormationType.DRAFT)
-                && getDraftStartTime() != null;
-    }
-
-    @JsonIgnore
-    public boolean isDraftTypeAndNotDraftTime() {
-        return getTeamFormationType() != null
-                && getTeamFormationType().equals(TeamFormationType.DRAFT)
-                && getDraftStartTime() == null;
-    }
 
     @JsonIgnore
     public boolean isDraftStartTimeAfterDeadline() {

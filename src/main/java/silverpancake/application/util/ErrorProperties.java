@@ -10,6 +10,7 @@ public class ErrorProperties {
     private String fileNotFound;
     private String filesNotFound;
     private String courseNotFound;
+    private String taskNotFound;
     private String invalidAccessToken;
     private String invalidRefreshToken;
     private String userWithEmailExists;

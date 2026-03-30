@@ -10,6 +10,7 @@ import silverpancake.application.model.course.CourseCreateModel;
 import silverpancake.application.model.course.CourseEditModel;
 import silverpancake.application.model.course.CourseModel;
 import silverpancake.application.service.CourseService;
+import silverpancake.domain.entity.user.UserCourseRole;
 
 import java.util.UUID;
 
@@ -29,8 +30,8 @@ public class CourseController {
     @PatchMapping("/{courseId}")
     @Operation(summary = "Edit course")
     public Response<CourseModel> editCourse(@RequestAttribute("authModel") AuthorizationModel authModel,
-                                          @PathVariable("courseId") UUID courseId,
-                                          @RequestBody CourseEditModel courseEditModel) {
+                                            @PathVariable("courseId") UUID courseId,
+                                            @RequestBody CourseEditModel courseEditModel) {
         return Response.success(courseService.editCourse(authModel.getUserId(), courseId, courseEditModel));
     }
 
@@ -39,5 +40,15 @@ public class CourseController {
     public Response<CourseModel> joinCourseByCode(@RequestAttribute("authModel") AuthorizationModel authModel,
                                                   @PathVariable String joinCode) {
         return Response.success(courseService.joinCourseByCode(authModel.getUserId(), joinCode));
+    }
+
+    @PostMapping(value = "/{courseId}/user/{userId}/role/{newRole}")
+    @Operation(summary = "Change user role in course")
+    public Response<Void> changeUserRoleOnCourse(@RequestAttribute("authModel") AuthorizationModel authModel,
+                                                 @PathVariable("courseId") UUID courseId,
+                                                 @PathVariable("userId") UUID userId,
+                                                 @PathVariable("newRole") UserCourseRole newUserRole) {
+        courseService.changeUserRoleOnCourse(authModel.getUserId(), courseId, userId, newUserRole);
+        return Response.success();
     }
 }

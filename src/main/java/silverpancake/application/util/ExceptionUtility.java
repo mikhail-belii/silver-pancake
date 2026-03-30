@@ -84,9 +84,15 @@ public class ExceptionUtility {
         return secEx;
     }
 
-    public ExceptionWrapper userNotCourseMemberException() {
+    public ExceptionWrapper requestingUserNotCourseMemberException() {
         var secEx = new ExceptionWrapper(new SecurityException());
-        secEx.setErrorMessage(errorProperties.getUserNotCourseMember());
+        secEx.setErrorMessage(errorProperties.getRequestingUserNotCourseMember());
+        return secEx;
+    }
+
+    public ExceptionWrapper targetUserNotCourseMemberException() {
+        var secEx = new ExceptionWrapper(new SecurityException());
+        secEx.setErrorMessage(errorProperties.getTargetUserNotCourseMember());
         return secEx;
     }
 

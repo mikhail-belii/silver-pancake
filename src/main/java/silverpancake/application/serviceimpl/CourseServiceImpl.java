@@ -52,7 +52,7 @@ public class CourseServiceImpl  implements CourseService {
         var course = courseRepository.findById(courseId)
                 .orElseThrow(exceptionUtility::courseNotFoundException);
         var userCourse = userCourseRepository.findByUserAndCourse(user.getId(), course.getId())
-                .orElseThrow(exceptionUtility::userNotCourseMemberException);
+                .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
 
         if (!CourseUtility.isCourseAvailableForEditing(course, user)) {
             throw exceptionUtility.securityException();
@@ -101,7 +101,22 @@ public class CourseServiceImpl  implements CourseService {
 
     @Override
     public void changeUserRoleOnCourse(UUID requestingUserId, UUID courseId, UUID userId, UserCourseRole newUserRole) {
+        var user = userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var userToChange = userRepository.findById(userId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var course = courseRepository.findById(courseId)
+                .orElseThrow(exceptionUtility::courseNotFoundException);
 
+        var userCourse = CourseUtility.getUserCourse(course, userToChange)
+                .orElseThrow(exceptionUtility::targetUserNotCourseMemberException);
+
+        if (!CourseUtility.isUserAvailableToChangeOtherUserRoleOnCourse(course, userToChange, newUserRole, user)) {
+            throw exceptionUtility.securityException();
+        }
+
+        userCourse.setUserRole(newUserRole);
+        userCourseRepository.save(userCourse);
     }
 
     @Override

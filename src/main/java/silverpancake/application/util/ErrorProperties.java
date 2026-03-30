@@ -21,6 +21,7 @@ public class ErrorProperties {
     private String fileAllowedExtensions;
     private String generateCodeFailed;
     private String security;
-    private String userNotCourseMember;
+    private String targetUserNotCourseMember;
+    private String requestingUserNotCourseMember;
     private String userAlreadyCourseMember;
 }

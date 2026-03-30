@@ -59,7 +59,8 @@ app:
     file-allowed-extensions: "Разрешенные расширения файла: txt, pdf, docx, png, jpg"
     generate-code-failed: Не удалось сгенерировать код присоединения. Попробуйте еще раз
     security: У вас недостаточно прав для выполнения этого действия
-    user-not-course-member: Вы не являетесь участником курса
+    requesting-user-not-course-member: Вы не являетесь участником курса
+    target-user-not-course-member: Пользователь не является участником курса
     user-already-course-member: Вы уже являетесь участником курса
 
 jwt:

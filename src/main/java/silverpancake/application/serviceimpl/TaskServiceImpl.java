@@ -6,8 +6,10 @@ import silverpancake.application.mapper.TaskMapper;
 import silverpancake.application.model.task.TaskCreateModel;
 import silverpancake.application.model.task.TaskEditModel;
 import silverpancake.application.model.task.TaskModel;
+import silverpancake.application.model.task.TaskShortListModel;
 import silverpancake.application.repository.*;
 import silverpancake.application.service.TaskService;
+import silverpancake.application.service.TeamService;
 import silverpancake.application.util.ExceptionUtility;
 import silverpancake.domain.entity.course.Course;
 import silverpancake.domain.entity.file.File;
@@ -32,6 +34,7 @@ public class TaskServiceImpl implements TaskService {
     private final CourseRepository courseRepository;
     private final UserCourseRepository userCourseRepository;
     private final ExceptionUtility exceptionUtility;
+    private final TeamService teamService;
 
     @Override
     public TaskModel createTask(UUID requestingUserId, UUID courseId, TaskCreateModel taskCreateModel) {
@@ -69,7 +72,9 @@ public class TaskServiceImpl implements TaskService {
 
         taskRepository.saveAndFlush(task);
 
-        return TaskMapper.toModel(task, user);
+        teamService.createTeamsOnTaskCreated(task, taskCreateModel.getTeamsAmount(), taskCreateModel.getTeamFormationType());
+
+        return TaskMapper.toModel(task);
     }
 
     @Override
@@ -116,7 +121,34 @@ public class TaskServiceImpl implements TaskService {
 
         taskRepository.saveAndFlush(task);
 
-        return TaskMapper.toModel(task, user);
+        return TaskMapper.toModel(task);
+    }
+
+    @Override
+    public TaskShortListModel getTasks(UUID requestingUserId, UUID courseId) {
+        var user = userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var course = courseRepository.findById(courseId)
+                .orElseThrow(exceptionUtility::courseNotFoundException);
+        userCourseRepository.findByUserAndCourse(user.getId(), course.getId())
+                .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
+        var tasks = taskRepository.getTasksByCourse(course);
+
+        return new TaskShortListModel(tasks.stream().map(TaskMapper::toShortModel).collect(Collectors.toList()));
+    }
+
+    @Override
+    public TaskModel getTask(UUID requestingUserId, UUID taskId) {
+        var user = userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var task = taskRepository.findById(taskId)
+                .orElseThrow(exceptionUtility::taskNotFoundException);
+        var course = courseRepository.findById(task.getCourse().getId())
+                .orElseThrow(exceptionUtility::courseNotFoundException);
+        userCourseRepository.findByUserAndCourse(user.getId(), course.getId())
+                .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
+
+        return TaskMapper.toModel(task);
     }
 
     private List<File> buildTaskFiles(List<UUID> fileIds,

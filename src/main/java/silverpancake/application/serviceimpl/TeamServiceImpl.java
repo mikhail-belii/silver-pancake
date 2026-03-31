@@ -3,11 +3,13 @@ package silverpancake.application.serviceimpl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import silverpancake.application.mapper.TeamMapper;
 import silverpancake.application.model.course.UserCourseListModel;
 import silverpancake.application.model.team.TeamModel;
 import silverpancake.application.model.team.TeamShortListModel;
-import silverpancake.application.repository.TeamRepository;
+import silverpancake.application.repository.*;
 import silverpancake.application.service.TeamService;
+import silverpancake.application.util.ExceptionUtility;
 import silverpancake.application.util.TeamProperties;
 import silverpancake.application.util.teamformation.TeamFormationFactory;
 import silverpancake.domain.entity.task.Task;
@@ -21,9 +23,14 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class TeamServiceImpl implements TeamService {
+    private final UserRepository userRepository;
+    private final TaskRepository taskRepository;
+    private final CourseRepository courseRepository;
+    private final UserCourseRepository userCourseRepository;
     private final TeamRepository teamRepository;
     private final TeamProperties teamProperties;
     private final TeamFormationFactory teamFormationFactory;
+    private final ExceptionUtility exceptionUtility;
 
     @Override
     @Transactional
@@ -46,7 +53,15 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public TeamShortListModel getTeams(UUID requestingUserId, UUID taskId) {
-        return null;
+        var user = userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var task = taskRepository.findById(taskId)
+                .orElseThrow(exceptionUtility::taskNotFoundException);
+        userCourseRepository.findByUserAndCourse(user.getId(), task.getCourse().getId())
+                .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
+        var teams = teamRepository.findTeamsByTask(task);
+
+        return new TeamShortListModel(teams.stream().map(TeamMapper::toTeamShortModel).toList());
     }
 
     @Override

@@ -42,6 +42,57 @@ springdoc:
     path: /v3/api-docs
 
 app:
+  team-names:
+    - Crimson Foxes
+    - Neon Badgers
+    - Iron Comets
+    - Velvet Sparks
+    - Arctic Owls
+    - Storm Lanterns
+    - Copper Wolves
+    - Lunar Falcons
+    - Quartz Raiders
+    - Silent Meteors
+    - Wild Orbit
+    - Solar Badlands
+    - Frost Runners
+    - Amber Cyclones
+    - Thunder Bloom
+    - Midnight Vectors
+    - Granite Pulse
+    - Blue Tempest
+    - Rogue Horizons
+    - Polar Drifters
+    - Scarlet Engines
+    - Echo Nomads
+    - Titan Embers
+    - Ivory Sharks
+    - Prism Forge
+    - Nova Lynx
+    - Steel Horizons
+    - Mystic Arrows
+    - Rapid Tundra
+    - Golden Circuit
+    - Obsidian Wings
+    - Delta Vortex
+    - Atomic Rangers
+    - Ember Harbor
+    - Frost Echo
+    - Radiant Crows
+    - Turbo Summit
+    - Glacier Rebels
+    - Phoenix Harbor
+    - Indigo Patrol
+    - Savage Lanterns
+    - Orbit Hunters
+    - Quantum Pines
+    - Iron Tide
+    - Crystal Rangers
+    - Storm Crafters
+    - Apex Howlers
+    - Northern Static
+    - Cosmic Trail
+    - Shadow Current
   errors:
     user-not-found: Пользователь не найден
     file-not-found: Файл не найден
@@ -79,3 +130,4 @@ jwt:
     refresh-days: 30
 
 file-storage-root: files/uploads
+

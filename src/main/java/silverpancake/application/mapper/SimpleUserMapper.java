@@ -7,6 +7,9 @@ import silverpancake.domain.entity.user.User;
 @UtilityClass
 public class SimpleUserMapper {
     public UserModel toModel(User userEntity) {
+        if (userEntity == null) {
+            return null;
+        }
         return new UserModel()
                 .setId(userEntity.getId())
                 .setFirstName(userEntity.getFirstName())

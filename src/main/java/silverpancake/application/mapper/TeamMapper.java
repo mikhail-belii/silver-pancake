@@ -10,6 +10,9 @@ import silverpancake.domain.entity.team.Team;
 @ExtensionMethod(SimpleUserMapper.class)
 public class TeamMapper {
     public TeamModel toTeamModel(Team team) {
+        if (team == null) {
+            return null;
+        }
         return new TeamModel()
                 .setId(team.getId())
                 .setName(team.getName())
@@ -18,6 +21,9 @@ public class TeamMapper {
     }
 
     public TeamShortModel toTeamShortModel(Team team) {
+        if (team == null) {
+            return null;
+        }
         return new TeamShortModel()
                 .setId(team.getId())
                 .setName(team.getName());

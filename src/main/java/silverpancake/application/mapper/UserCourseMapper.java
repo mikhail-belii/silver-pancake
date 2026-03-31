@@ -9,6 +9,9 @@ import silverpancake.domain.entity.usercourse.UserCourse;
 @ExtensionMethod(SimpleUserMapper.class)
 public class UserCourseMapper {
     public UserCourseModel toModel(UserCourse userCourseEntity) {
+        if (userCourseEntity == null) {
+            return null;
+        }
         return new UserCourseModel()
                 .setUserModel(userCourseEntity.getUser().toModel())
                 .setUserRole(userCourseEntity.getUserRole());

@@ -11,6 +11,7 @@ public class ErrorProperties {
     private String filesNotFound;
     private String courseNotFound;
     private String taskNotFound;
+    private String teamNotFound;
     private String invalidAccessToken;
     private String invalidRefreshToken;
     private String userWithEmailExists;

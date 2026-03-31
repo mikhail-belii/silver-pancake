@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import silverpancake.application.model.auth.AuthorizationModel;
 import silverpancake.application.model.common.Response;
+import silverpancake.application.model.team.TeamModel;
 import silverpancake.application.model.team.TeamShortListModel;
 import silverpancake.application.service.TeamService;
 
@@ -19,7 +20,17 @@ public class TeamController {
     @GetMapping("list")
     @Operation(summary = "Get teams")
     public Response<TeamShortListModel> getTeams(@RequestAttribute("authModel") AuthorizationModel authModel,
-                                                 @PathVariable UUID taskId) {
+                                                 @PathVariable UUID taskId,
+                                                 @PathVariable UUID courseId) {
         return Response.success(teamService.getTeams(authModel.getUserId(), taskId));
+    }
+
+    @GetMapping("{teamId}")
+    @Operation(summary = "Get concrete team")
+    public Response<TeamModel> getTeam(@RequestAttribute("authModel") AuthorizationModel authModel,
+                                       @PathVariable UUID teamId,
+                                       @PathVariable UUID courseId,
+                                       @PathVariable UUID taskId) {
+        return Response.success(teamService.getTeam(authModel.getUserId(), teamId));
     }
 }

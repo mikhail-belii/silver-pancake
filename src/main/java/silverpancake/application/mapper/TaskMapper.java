@@ -11,6 +11,9 @@ import silverpancake.domain.entity.user.User;
 @ExtensionMethod({SimpleUserMapper.class, SimpleFileMapper.class})
 public class TaskMapper {
     public TaskModel toModel(Task task) {
+        if (task == null) {
+            return null;
+        }
         return new TaskModel()
                 .setId(task.getId())
                 .setAuthor(task.getAuthor().toModel())
@@ -26,6 +29,9 @@ public class TaskMapper {
     }
 
     public TaskShortModel toShortModel(Task task) {
+        if (task == null) {
+            return null;
+        }
         return new TaskShortModel()
                 .setId(task.getId())
                 .setText(task.getText())

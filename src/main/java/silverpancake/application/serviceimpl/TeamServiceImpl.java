@@ -66,7 +66,16 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public TeamModel getTeam(UUID requestingUserId, UUID teamId) {
-        return null;
+        var user = userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var team = teamRepository.findById(teamId)
+                .orElseThrow(exceptionUtility::teamNotFoundException);
+        var task = taskRepository.findById(team.getTask().getId())
+                .orElseThrow(exceptionUtility::taskNotFoundException);
+        userCourseRepository.findByUserAndCourse(user.getId(), task.getCourse().getId())
+                .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
+
+        return TeamMapper.toTeamModel(team);
     }
 
     @Override

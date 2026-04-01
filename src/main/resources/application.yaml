@@ -121,6 +121,10 @@ app:
     not-draft-type-and-draft-time: Времени драфта не должно быть при указанном типе не "Драфт"
     draft-type-and-not-draft-time: При указанном типе "Драфт" должно быть назначено время драфта
     draft-time-after-deadline: Драфт должен происходить до сдачи задания
+    only-student-can-be-team-member: Только студент может быть участником или капитаном команды
+    student-already-captain: Этот студент уже является капитаном команды
+    team-already-has-captain: У команды уже назначен капитан
+    student-already-in-another-team: Студент уже состоит в другой команде этого задания
 
 jwt:
   secret:
@@ -131,4 +135,5 @@ jwt:
     refresh-days: 30
 
 file-storage-root: files/uploads
+
 

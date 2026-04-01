@@ -32,4 +32,8 @@ public class ErrorProperties {
     private String notDraftTypeAndDraftTime;
     private String draftTypeAndNotDraftTime;
     private String draftTimeAfterDeadline;
+    private String onlyStudentCanBeTeamMember;
+    private String studentAlreadyCaptain;
+    private String teamAlreadyHasCaptain;
+    private String studentAlreadyInAnotherTeam;
 }

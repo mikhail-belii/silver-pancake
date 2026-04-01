@@ -108,6 +108,30 @@ public class ExceptionUtility {
         return badRequestEx;
     }
 
+    public ExceptionWrapper onlyStudentCanBeTeamMemberException() {
+        var badRequestEx = new ExceptionWrapper(new BadRequestException());
+        badRequestEx.setErrorMessage(errorProperties.getOnlyStudentCanBeTeamMember());
+        return badRequestEx;
+    }
+
+    public ExceptionWrapper studentAlreadyCaptainException() {
+        var badRequestEx = new ExceptionWrapper(new BadRequestException());
+        badRequestEx.setErrorMessage(errorProperties.getStudentAlreadyCaptain());
+        return badRequestEx;
+    }
+
+    public ExceptionWrapper teamAlreadyHasCaptainException() {
+        var badRequestEx = new ExceptionWrapper(new BadRequestException());
+        badRequestEx.setErrorMessage(errorProperties.getTeamAlreadyHasCaptain());
+        return badRequestEx;
+    }
+
+    public ExceptionWrapper studentAlreadyInAnotherTeamException() {
+        var badRequestEx = new ExceptionWrapper(new BadRequestException());
+        badRequestEx.setErrorMessage(errorProperties.getStudentAlreadyInAnotherTeam());
+        return badRequestEx;
+    }
+
     public ExceptionWrapper invalidAccessTokenException() {
         var authEx = new ExceptionWrapper(new AuthException());
         authEx.setErrorMessage(errorProperties.getInvalidAccessToken());

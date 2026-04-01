@@ -29,7 +29,7 @@ public class CourseController {
     @PatchMapping("/{courseId}")
     @Operation(summary = "Edit course")
     public Response<CourseModel> editCourse(@RequestAttribute("authModel") AuthorizationModel authModel,
-                                            @PathVariable("courseId") UUID courseId,
+                                            @PathVariable UUID courseId,
                                             @RequestBody CourseEditModel courseEditModel) {
         return Response.success(courseService.editCourse(authModel.getUserId(), courseId, courseEditModel));
     }
@@ -44,17 +44,17 @@ public class CourseController {
     @PostMapping(value = "/{courseId}/user/{userId}/role/{newRole}")
     @Operation(summary = "Change user role in course")
     public Response<Void> changeUserRoleOnCourse(@RequestAttribute("authModel") AuthorizationModel authModel,
-                                                 @PathVariable("courseId") UUID courseId,
-                                                 @PathVariable("userId") UUID userId,
-                                                 @PathVariable("newRole") UserCourseRole newUserRole) {
-        courseService.changeUserRoleOnCourse(authModel.getUserId(), courseId, userId, newUserRole);
+                                                 @PathVariable UUID courseId,
+                                                 @PathVariable UUID userId,
+                                                 @PathVariable UserCourseRole newRole) {
+        courseService.changeUserRoleOnCourse(authModel.getUserId(), courseId, userId, newRole);
         return Response.success();
     }
 
     @GetMapping(value = "/{courseId}/user/list")
     @Operation(summary = "Get course users")
     public Response<UserCourseListModel> getCourseUsers(@RequestAttribute("authModel") AuthorizationModel authModel,
-                                                        @PathVariable("courseId") UUID courseId) {
+                                                        @PathVariable UUID courseId) {
         return Response.success(courseService.getCourseUsers(authModel.getUserId(), courseId));
     }
 
@@ -67,7 +67,7 @@ public class CourseController {
     @GetMapping(value = "/{courseId}")
     @Operation(summary = "Get concrete course")
     public Response<CourseModel> getConcreteCourse(@RequestAttribute("authModel") AuthorizationModel authModel,
-                                                   @PathVariable("courseId") UUID courseId) {
+                                                   @PathVariable UUID courseId) {
         return Response.success(courseService.getConcreteCourse(authModel.getUserId(), courseId));
     }
 }

@@ -32,8 +32,7 @@ public class TaskController {
     @Operation(summary = "Edit task")
     public Response<TaskModel> editTask(@RequestAttribute("authModel") AuthorizationModel authModel,
                                         @PathVariable UUID taskId,
-                                        @Valid @RequestBody TaskEditModel taskEditModel,
-                                        @PathVariable String courseId) {
+                                        @Valid @RequestBody TaskEditModel taskEditModel) {
         return Response.success(taskService.editTask(authModel.getUserId(), taskId, taskEditModel));
     }
 
@@ -47,8 +46,7 @@ public class TaskController {
     @GetMapping("{taskId}")
     @Operation(summary = "Get concrete task")
     public Response<TaskModel> getTask(@RequestAttribute("authModel") AuthorizationModel authModel,
-                                       @PathVariable UUID taskId,
-                                       @PathVariable String courseId) {
+                                       @PathVariable UUID taskId) {
         return Response.success(taskService.getTask(authModel.getUserId(), taskId));
     }
 }

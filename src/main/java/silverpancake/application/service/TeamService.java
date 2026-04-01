@@ -12,7 +12,7 @@ public interface TeamService {
     void createTeamsOnTaskCreated(Task task, Integer teamsAmount, TeamFormationType teamFormationType);
     TeamShortListModel getTeams(UUID requestingUserId, UUID taskId);
     TeamModel getTeam(UUID requestingUserId, UUID teamId);
-    void assignTeamCaptain(UUID requestingUserId, UUID teamId, UUID studentId);
+    TeamModel assignTeamCaptain(UUID requestingUserId, UUID teamId, UUID studentId);
     UserCourseListModel getFreeStudentsForTask(UUID requestingUserId, UUID taskId);
     void addTeamMember(UUID requestingUserId, UUID teamId, UUID studentId);
 }

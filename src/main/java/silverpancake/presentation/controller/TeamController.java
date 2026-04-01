@@ -20,17 +20,22 @@ public class TeamController {
     @GetMapping("list")
     @Operation(summary = "Get teams")
     public Response<TeamShortListModel> getTeams(@RequestAttribute("authModel") AuthorizationModel authModel,
-                                                 @PathVariable UUID taskId,
-                                                 @PathVariable UUID courseId) {
+                                                 @PathVariable UUID taskId) {
         return Response.success(teamService.getTeams(authModel.getUserId(), taskId));
     }
 
     @GetMapping("{teamId}")
     @Operation(summary = "Get concrete team")
     public Response<TeamModel> getTeam(@RequestAttribute("authModel") AuthorizationModel authModel,
-                                       @PathVariable UUID teamId,
-                                       @PathVariable UUID courseId,
-                                       @PathVariable UUID taskId) {
+                                       @PathVariable UUID teamId) {
         return Response.success(teamService.getTeam(authModel.getUserId(), teamId));
+    }
+
+    @PostMapping("{teamId}/captain/{studentId}")
+    @Operation(summary = "Assign captain to concrete team")
+    public Response<TeamModel> assignTeamCaptain(@RequestAttribute("authModel") AuthorizationModel authModel,
+                                                 @PathVariable UUID teamId,
+                                                 @PathVariable UUID studentId) {
+        return Response.success(teamService.assignTeamCaptain(authModel.getUserId(), teamId, studentId));
     }
 }

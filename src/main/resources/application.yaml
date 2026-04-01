@@ -42,6 +42,41 @@ springdoc:
     path: /v3/api-docs
 
 app:
+  predefined-data:
+    enabled: true
+    course:
+      name: Тестовый курс
+      description: Курс для быстрого ручного тестирования
+      join-code: HITS2026
+    users:
+      - email: teacher@example.com
+        password: stringst
+        first-name: Иван
+        last-name: Иванов
+      - email: student1@example.com
+        password: stringst
+        first-name: Петр
+        last-name: Петров
+      - email: student2@example.com
+        password: stringst
+        first-name: Анна
+        last-name: Смирнова
+      - email: student3@example.com
+        password: stringst
+        first-name: Мария
+        last-name: Кузнецова
+      - email: student4@example.com
+        password: stringst
+        first-name: Алексей
+        last-name: Соколов
+      - email: student5@example.com
+        password: stringst
+        first-name: Ольга
+        last-name: Попова
+      - email: student6@example.com
+        password: stringst
+        first-name: Дмитрий
+        last-name: Волков
   team-names:
     - Crimson Foxes
     - Neon Badgers

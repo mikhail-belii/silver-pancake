@@ -156,6 +156,12 @@ public class ExceptionUtility {
         return authEx;
     }
 
+    public ExceptionWrapper invalidWebsocketMessageException() {
+        var authEx = new ExceptionWrapper(new BadRequestException());
+        authEx.setErrorMessage(errorProperties.getInvalidWebsocketMessage());
+        return authEx;
+    }
+
     public ExceptionWrapper securityException() {
         var secEx = new ExceptionWrapper(new SecurityException());
         secEx.setErrorMessage(errorProperties.getSecurity());

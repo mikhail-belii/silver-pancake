@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import silverpancake.application.mapper.TeamMapper;
+import silverpancake.application.mapper.UserCourseMapper;
 import silverpancake.application.model.course.UserCourseListModel;
 import silverpancake.application.model.team.TeamModel;
 import silverpancake.application.model.team.TeamShortListModel;
@@ -21,6 +22,7 @@ import silverpancake.domain.entity.userteam.UserTeam;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.UUID;
 
 @Service
@@ -135,7 +137,37 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public UserCourseListModel getFreeStudentsForTask(UUID requestingUserId, UUID taskId) {
-        return null;
+        var user = userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var task = taskRepository.findById(taskId)
+                .orElseThrow(exceptionUtility::taskNotFoundException);
+        var userCourse = userCourseRepository.findByUserAndCourse(user.getId(), task.getCourse().getId())
+                .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
+
+        if (userCourse.getUserRole().equals(UserCourseRole.STUDENT)) {
+            throw exceptionUtility.securityException();
+        }
+
+        var busyStudentIds = new HashSet<UUID>();
+        var teams = teamRepository.findTeamsByTask(task);
+        for (var team : teams) {
+            if (team.getCaptain() != null) {
+                busyStudentIds.add(team.getCaptain().getId());
+            }
+
+            if (team.getTeamMembers() != null) {
+                team.getTeamMembers().forEach(teamMember -> busyStudentIds.add(teamMember.getUser().getId()));
+            }
+        }
+
+        var freeStudents = task.getCourse().getCourseUsers()
+                .stream()
+                .filter(courseUser -> courseUser.getUserRole().equals(UserCourseRole.STUDENT))
+                .filter(courseUser -> !busyStudentIds.contains(courseUser.getUser().getId()))
+                .map(UserCourseMapper::toModel)
+                .toList();
+
+        return new UserCourseListModel(freeStudents);
     }
 
     @Override

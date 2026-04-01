@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import silverpancake.application.model.auth.AuthorizationModel;
 import silverpancake.application.model.common.Response;
+import silverpancake.application.model.course.UserCourseListModel;
 import silverpancake.application.model.team.TeamModel;
 import silverpancake.application.model.team.TeamShortListModel;
 import silverpancake.application.service.TeamService;
@@ -53,5 +54,12 @@ public class TeamController {
                                                  @PathVariable UUID teamId,
                                                  @PathVariable UUID teamMemberId) {
         return Response.success(teamService.removeTeamMember(authModel.getUserId(), teamId, teamMemberId));
+    }
+
+    @GetMapping("free-students")
+    @Operation(summary = "Get free students for task (only for teachers)")
+    public Response<UserCourseListModel> getFreeStudentsForTask(@RequestAttribute("authModel") AuthorizationModel authModel,
+                                                                @PathVariable UUID taskId) {
+        return Response.success(teamService.getFreeStudentsForTask(authModel.getUserId(), taskId));
     }
 }

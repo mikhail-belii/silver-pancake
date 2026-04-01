@@ -138,6 +138,7 @@ app:
 
     invalid-access-token: Токен доступа некорректный или истек
     invalid-refresh-token: Токен обновления некорректный или истек
+    invalid-websocket-message: Сообщение в вебсокете отсутствует или пустое
     user-with-email-exists: Пользователь с такой почтой уже зарегистрирован
     incorrect-email-or-password: Неверная почта или пароль
     file-empty: Файл пустой

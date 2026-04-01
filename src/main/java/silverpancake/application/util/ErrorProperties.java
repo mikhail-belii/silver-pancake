@@ -14,6 +14,7 @@ public class ErrorProperties {
     private String teamNotFound;
     private String invalidAccessToken;
     private String invalidRefreshToken;
+    private String invalidWebsocketMessage;
     private String userWithEmailExists;
     private String incorrectEmailOrPassword;
     private String fileEmpty;

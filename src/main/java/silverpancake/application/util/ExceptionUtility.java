@@ -132,6 +132,18 @@ public class ExceptionUtility {
         return badRequestEx;
     }
 
+    public ExceptionWrapper studentAlreadyInThisTeamException() {
+        var badRequestEx = new ExceptionWrapper(new BadRequestException());
+        badRequestEx.setErrorMessage(errorProperties.getStudentAlreadyInThisTeam());
+        return badRequestEx;
+    }
+
+    public ExceptionWrapper studentNotInThisTeamException() {
+        var badRequestEx = new ExceptionWrapper(new BadRequestException());
+        badRequestEx.setErrorMessage(errorProperties.getStudentNotInThisTeam());
+        return badRequestEx;
+    }
+
     public ExceptionWrapper invalidAccessTokenException() {
         var authEx = new ExceptionWrapper(new AuthException());
         authEx.setErrorMessage(errorProperties.getInvalidAccessToken());

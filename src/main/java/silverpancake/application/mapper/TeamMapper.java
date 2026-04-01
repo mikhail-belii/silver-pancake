@@ -16,8 +16,10 @@ public class TeamMapper {
         return new TeamModel()
                 .setId(team.getId())
                 .setName(team.getName())
-                .setCaptain(team.getCaptain().toModel())
-                .setMembers(team.getTeamMembers().stream().map(ut -> ut.getUser().toModel()).toList());
+                .setCaptain(team.getCaptain() == null ? null : team.getCaptain().toModel())
+                .setMembers(team.getTeamMembers() == null
+                        ? java.util.List.of()
+                        : team.getTeamMembers().stream().map(ut -> ut.getUser().toModel()).toList());
     }
 
     public TeamShortModel toTeamShortModel(Team team) {

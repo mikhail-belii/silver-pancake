@@ -125,6 +125,8 @@ app:
     student-already-captain: Этот студент уже является капитаном команды
     team-already-has-captain: У команды уже назначен капитан
     student-already-in-another-team: Студент уже состоит в другой команде этого задания
+    student-already-in-this-team: Студент уже состоит в этой команде
+    student-not-in-this-team: Студент не состоит в этой команде
 
 jwt:
   secret:

@@ -32,10 +32,26 @@ public class TeamController {
     }
 
     @PostMapping("{teamId}/captain/{studentId}")
-    @Operation(summary = "Assign captain to concrete team")
+    @Operation(summary = "Assign captain to concrete team (only for teachers)")
     public Response<TeamModel> assignTeamCaptain(@RequestAttribute("authModel") AuthorizationModel authModel,
                                                  @PathVariable UUID teamId,
                                                  @PathVariable UUID studentId) {
         return Response.success(teamService.assignTeamCaptain(authModel.getUserId(), teamId, studentId));
+    }
+
+    @PostMapping("{teamId}/member/{studentId}")
+    @Operation(summary = "Add team member (only for teachers)")
+    public Response<TeamModel> addTeamMember(@RequestAttribute("authModel") AuthorizationModel authModel,
+                                                 @PathVariable UUID teamId,
+                                                 @PathVariable UUID studentId) {
+        return Response.success(teamService.addTeamMember(authModel.getUserId(), teamId, studentId));
+    }
+
+    @DeleteMapping("{teamId}/member/{teamMemberId}")
+    @Operation(summary = "Remove team member including captains (only for teachers)")
+    public Response<TeamModel> removeTeamMember(@RequestAttribute("authModel") AuthorizationModel authModel,
+                                                 @PathVariable UUID teamId,
+                                                 @PathVariable UUID teamMemberId) {
+        return Response.success(teamService.removeTeamMember(authModel.getUserId(), teamId, teamMemberId));
     }
 }

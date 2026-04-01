@@ -16,7 +16,9 @@ import silverpancake.domain.entity.task.Task;
 import silverpancake.domain.entity.task.TeamFormationType;
 import silverpancake.domain.entity.team.Team;
 import silverpancake.domain.entity.user.UserCourseRole;
+import silverpancake.domain.entity.userteam.UserTeam;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
@@ -137,9 +139,113 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public void addTeamMember(UUID requestingUserId, UUID teamId, UUID studentId) {
+    @Transactional
+    public TeamModel addTeamMember(UUID requestingUserId, UUID teamId, UUID studentId) {
+        var user = userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var team = teamRepository.findById(teamId)
+                .orElseThrow(exceptionUtility::teamNotFoundException);
+        var task = taskRepository.findById(team.getTask().getId())
+                .orElseThrow(exceptionUtility::taskNotFoundException);
+        var userCourse = userCourseRepository.findByUserAndCourse(user.getId(), task.getCourse().getId())
+                .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
 
+        if (userCourse.getUserRole().equals(UserCourseRole.STUDENT)) {
+            throw exceptionUtility.securityException();
+        }
+
+        var student = userRepository.findById(studentId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var studentUserCourse = userCourseRepository.findByUserAndCourse(student.getId(), task.getCourse().getId())
+                .orElseThrow(exceptionUtility::targetUserNotCourseMemberException);
+
+        if (!studentUserCourse.getUserRole().equals(UserCourseRole.STUDENT)) {
+            throw exceptionUtility.onlyStudentCanBeTeamMemberException();
+        }
+
+        var studentCaptainTeam = teamRepository.findByCaptainIdAndTaskId(student.getId(), task.getId());
+        if (studentCaptainTeam.isPresent()) {
+            if (studentCaptainTeam.get().getId().equals(teamId)) {
+                throw exceptionUtility.studentAlreadyCaptainException();
+            }
+
+            throw exceptionUtility.studentAlreadyInAnotherTeamException();
+        }
+
+        var studentUserTeam = userTeamRepository.findByUserIdAndTeamTaskId(student.getId(), task.getId());
+        if (studentUserTeam.isPresent()) {
+            if (studentUserTeam.get().getTeam().getId().equals(teamId)) {
+                throw exceptionUtility.studentAlreadyInThisTeamException();
+            }
+
+            throw exceptionUtility.studentAlreadyInAnotherTeamException();
+        }
+
+        var userTeam = new UserTeam()
+                .setUser(student)
+                .setTeam(team)
+                .setCreatedAt(LocalDateTime.now());
+
+        userTeam = userTeamRepository.save(userTeam);
+
+        if (team.getTeamMembers() == null) {
+            team.setTeamMembers(new ArrayList<>());
+        }
+        team.getTeamMembers().add(userTeam);
+
+        return TeamMapper.toTeamModel(team);
     }
+
+    @Override
+    @Transactional
+    public TeamModel removeTeamMember(UUID requestingUserId, UUID teamId, UUID teamMemberId) {
+        var user = userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var team = teamRepository.findById(teamId)
+                .orElseThrow(exceptionUtility::teamNotFoundException);
+        var task = taskRepository.findById(team.getTask().getId())
+                .orElseThrow(exceptionUtility::taskNotFoundException);
+        var userCourse = userCourseRepository.findByUserAndCourse(user.getId(), task.getCourse().getId())
+                .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
+
+        if (userCourse.getUserRole().equals(UserCourseRole.STUDENT)) {
+            throw exceptionUtility.securityException();
+        }
+
+        var teamMember = userRepository.findById(teamMemberId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var teamMemberUserCourse = userCourseRepository.findByUserAndCourse(teamMember.getId(), task.getCourse().getId())
+                .orElseThrow(exceptionUtility::targetUserNotCourseMemberException);
+
+        if (!teamMemberUserCourse.getUserRole().equals(UserCourseRole.STUDENT)) {
+            throw exceptionUtility.onlyStudentCanBeTeamMemberException();
+        }
+
+        if (team.getCaptain() != null && team.getCaptain().getId().equals(teamMemberId)) {
+            team.setCaptain(null);
+            teamRepository.save(team);
+
+            return TeamMapper.toTeamModel(team);
+        }
+
+        var studentUserTeam = userTeamRepository.findByUserIdAndTeamTaskId(teamMember.getId(), task.getId());
+        if (studentUserTeam.isEmpty()) {
+            throw exceptionUtility.studentNotInThisTeamException();
+        }
+
+        var userTeam = studentUserTeam.get();
+        if (!userTeam.getTeam().getId().equals(teamId)) {
+            throw exceptionUtility.studentNotInThisTeamException();
+        }
+
+        userTeamRepository.delete(userTeam);
+        if (team.getTeamMembers() != null) {
+            team.getTeamMembers().removeIf(teamMemberEntity -> teamMemberEntity.getId().equals(userTeam.getId()));
+        }
+
+        return TeamMapper.toTeamModel(team);
+    }
+
 
     private ArrayList<String> getShuffledTeamNames() {
         var teamNames = teamProperties.getTeamNames();

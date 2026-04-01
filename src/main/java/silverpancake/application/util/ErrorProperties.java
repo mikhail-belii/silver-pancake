@@ -36,4 +36,6 @@ public class ErrorProperties {
     private String studentAlreadyCaptain;
     private String teamAlreadyHasCaptain;
     private String studentAlreadyInAnotherTeam;
+    private String studentAlreadyInThisTeam;
+    private String studentNotInThisTeam;
 }

@@ -39,4 +39,6 @@ public class ErrorProperties {
     private String studentAlreadyInAnotherTeam;
     private String studentAlreadyInThisTeam;
     private String studentNotInThisTeam;
+    private String teamJoiningAvailableOnlyForFreeFormation;
+    private String taskDeadlineExpired;
 }

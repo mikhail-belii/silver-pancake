@@ -163,6 +163,8 @@ app:
     student-already-in-another-team: Студент уже состоит в другой команде этого задания
     student-already-in-this-team: Студент уже состоит в этой команде
     student-not-in-this-team: Студент не состоит в этой команде
+    team-joining-available-only-for-free-formation: Присоединение доступно только для задания со свободным формированием команд
+    task-deadline-expired: Дедлайн задания уже истек
 
 jwt:
   secret:

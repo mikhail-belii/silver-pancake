@@ -62,4 +62,11 @@ public class TeamController {
                                                                 @PathVariable UUID taskId) {
         return Response.success(teamService.getFreeStudentsForTask(authModel.getUserId(), taskId));
     }
+
+    @PostMapping("{teamId}/join")
+    @Operation(summary = "Join team for free team formation (only for students)")
+    public Response<TeamModel> joinTeam(@RequestAttribute("authModel") AuthorizationModel authModel,
+                                        @PathVariable UUID teamId) {
+        return Response.success(teamService.joinTeam(authModel.getUserId(), teamId));
+    }
 }

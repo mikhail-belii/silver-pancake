@@ -144,6 +144,18 @@ public class ExceptionUtility {
         return badRequestEx;
     }
 
+    public ExceptionWrapper teamJoiningAvailableOnlyForFreeFormationException() {
+        var badRequestEx = new ExceptionWrapper(new BadRequestException());
+        badRequestEx.setErrorMessage(errorProperties.getTeamJoiningAvailableOnlyForFreeFormation());
+        return badRequestEx;
+    }
+
+    public ExceptionWrapper taskDeadlineExpiredException() {
+        var badRequestEx = new ExceptionWrapper(new BadRequestException());
+        badRequestEx.setErrorMessage(errorProperties.getTaskDeadlineExpired());
+        return badRequestEx;
+    }
+
     public ExceptionWrapper invalidAccessTokenException() {
         var authEx = new ExceptionWrapper(new AuthException());
         authEx.setErrorMessage(errorProperties.getInvalidAccessToken());

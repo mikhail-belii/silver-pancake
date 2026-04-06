@@ -14,6 +14,7 @@ public interface TeamService {
     TeamModel getTeam(UUID requestingUserId, UUID teamId);
     TeamModel assignTeamCaptain(UUID requestingUserId, UUID teamId, UUID studentId);
     UserCourseListModel getFreeStudentsForTask(UUID requestingUserId, UUID taskId);
+    TeamModel joinTeam(UUID requestingUserId, UUID teamId);
     TeamModel addTeamMember(UUID requestingUserId, UUID teamId, UUID studentId);
     TeamModel removeTeamMember(UUID requestingUserId, UUID teamId, UUID teamMemberId);
 }

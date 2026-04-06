@@ -69,4 +69,11 @@ public class TeamController {
                                         @PathVariable UUID teamId) {
         return Response.success(teamService.joinTeam(authModel.getUserId(), teamId));
     }
+
+    @DeleteMapping("{teamId}/leave")
+    @Operation(summary = "Leave team for free team formation (only for students)")
+    public Response<TeamModel> leaveTeam(@RequestAttribute("authModel") AuthorizationModel authModel,
+                                         @PathVariable UUID teamId) {
+        return Response.success(teamService.leaveTeam(authModel.getUserId(), teamId));
+    }
 }

@@ -229,6 +229,53 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @Transactional
+    public TeamModel leaveTeam(UUID requestingUserId, UUID teamId) {
+        var user = userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var team = teamRepository.findById(teamId)
+                .orElseThrow(exceptionUtility::teamNotFoundException);
+        var task = taskRepository.findById(team.getTask().getId())
+                .orElseThrow(exceptionUtility::taskNotFoundException);
+        var userCourse = userCourseRepository.findByUserAndCourse(user.getId(), task.getCourse().getId())
+                .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
+
+        validateTaskDeadlineNotExpired(task);
+
+        if (!userCourse.getUserRole().equals(UserCourseRole.STUDENT)) {
+            throw exceptionUtility.securityException();
+        }
+
+        if (!task.getTeamFormationType().equals(TeamFormationType.FREE)) {
+            throw exceptionUtility.teamJoiningAvailableOnlyForFreeFormationException();
+        }
+
+        if (team.getCaptain() != null && team.getCaptain().getId().equals(user.getId())) {
+            team.setCaptain(null);
+            teamRepository.save(team);
+
+            return TeamMapper.toModel(team);
+        }
+
+        var studentUserTeam = userTeamRepository.findByUserIdAndTeamTaskId(user.getId(), task.getId());
+        if (studentUserTeam.isEmpty()) {
+            throw exceptionUtility.studentNotInThisTeamException();
+        }
+
+        var userTeam = studentUserTeam.get();
+        if (!userTeam.getTeam().getId().equals(teamId)) {
+            throw exceptionUtility.studentNotInThisTeamException();
+        }
+
+        userTeamRepository.delete(userTeam);
+        if (team.getTeamMembers() != null) {
+            team.getTeamMembers().removeIf(teamMember -> teamMember.getId().equals(userTeam.getId()));
+        }
+
+        return TeamMapper.toModel(team);
+    }
+
+    @Override
+    @Transactional
     public TeamModel addTeamMember(UUID requestingUserId, UUID teamId, UUID studentId) {
         var user = userRepository.findById(requestingUserId)
                 .orElseThrow(exceptionUtility::userNotFoundException);

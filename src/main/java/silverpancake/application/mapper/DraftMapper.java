@@ -17,7 +17,7 @@ public class DraftMapper {
         return new DraftModel()
                 .setId(draft.getId())
                 .setDraftPickTurns(draft.getDraftPickTurns().stream().map(DraftMapper::toModel).toList())
-                .setTeams(draft.getTeams().stream().map(t -> t.toTeamModel()).toList())
+                .setTeams(draft.getTeams().stream().map(t -> t.toModel()).toList())
                 .setIsStarted(draft.getIsStarted())
                 .setIsEnded(draft.getIsEnded());
     }

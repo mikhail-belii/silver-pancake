@@ -3,6 +3,7 @@ package silverpancake.domain.entity.team;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import silverpancake.domain.entity.draft.Draft;
 import silverpancake.domain.entity.task.Task;
 import silverpancake.domain.entity.user.User;
 import silverpancake.domain.entity.userteam.UserTeam;
@@ -22,6 +23,10 @@ public class Team {
     @ManyToOne
     @JoinColumn(name = "task_id")
     private Task task;
+
+    @ManyToOne
+    @JoinColumn(name = "draft_id")
+    private Draft draft;
 
     @ManyToOne
     @JoinColumn(name = "captain_id")

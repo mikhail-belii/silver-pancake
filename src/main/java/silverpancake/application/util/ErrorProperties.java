@@ -10,6 +10,7 @@ public class ErrorProperties {
     private String fileNotFound;
     private String filesNotFound;
     private String courseNotFound;
+    private String draftNotFound;
     private String taskNotFound;
     private String teamNotFound;
     private String invalidAccessToken;
@@ -39,4 +40,7 @@ public class ErrorProperties {
     private String studentAlreadyInAnotherTeam;
     private String studentAlreadyInThisTeam;
     private String studentNotInThisTeam;
+    private String teamsHaveNotEnoughCaptainsException;
+    private String draftAlreadyEndedException;
+    private String draftIsNotObservableByUserException;
 }

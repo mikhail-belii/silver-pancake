@@ -7,6 +7,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import silverpancake.application.model.auth.AuthorizationModel;
+import silverpancake.application.service.DraftService;
 import silverpancake.application.util.JwtUtil;
 import silverpancake.presentation.websocket.model.AuthenticatedSocketSession;
 import silverpancake.presentation.websocket.model.ConnectModel;
@@ -23,6 +24,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
     private final WebSocketParser webSocketParser;
 
     private final WebsocketSessionManager websocketSessionManager;
+
+    private final DraftService draftService;
 
     private final JwtUtil jwtUtil;
 
@@ -72,6 +75,12 @@ public class WebSocketHandler extends TextWebSocketHandler {
         var claims = jwtUtil.parseAccessClaims(token);
         var authModel = new AuthorizationModel(UUID.fromString(claims.get("user_id", String.class)), token);
 
+        if (!draftService.canUserObserveDraft(authModel.getUserId(), message.getData().getObservableDraftId())) {
+            websocketSessionManager.returnError(session.getSession(), "User can't observe this draft");
+            return;
+        }
+
+        session.setObservableDraftId(message.getData().getObservableDraftId());
         session.setAuthorizationModel(authModel);
     }
 

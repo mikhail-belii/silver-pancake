@@ -4,14 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import silverpancake.application.util.ExceptionUtility;
 import silverpancake.presentation.websocket.model.AuthenticatedSocketSession;
 import silverpancake.presentation.websocket.model.WebSocketResponseType;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -21,8 +18,6 @@ public class WebsocketSessionManager extends TextWebSocketHandler {
     private ConcurrentHashMap<String, AuthenticatedSocketSession> sessions = new ConcurrentHashMap<>();
 
     private final WebSocketParser messageParser;
-
-
 
     public void closeSession(WebSocketSession session) {
         sessions.remove(session.getId());
@@ -43,6 +38,14 @@ public class WebsocketSessionManager extends TextWebSocketHandler {
             return Optional.empty();
         }
         return Optional.of(session);
+    }
+
+    public List<AuthenticatedSocketSession> getSessionsByDraftId(UUID draftId) {
+        return sessions.values()
+                .stream()
+                .filter(s -> s.getAuthorizationModel() != null
+                                && Objects.equals(s.getObservableDraftId(), draftId))
+                .toList();
     }
 
     public void addNewSession(AuthenticatedSocketSession session) {

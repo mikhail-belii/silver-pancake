@@ -1,0 +1,25 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="CreateDraftTable" author="KBelovodchenko">
+        <createTable tableName="draft">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_draft"/>
+            </column>
+            <column name="is_ended" type="BOOLEAN"/>
+            <column name="task_id" type="UUID"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="draft" baseColumnNames="task_id"
+                                 constraintName="fk_draft_task" referencedTableName="task"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="AddIsStarted" author="KBelovodchenko">
+        <addColumn tableName="draft">
+            <column name="is_started" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

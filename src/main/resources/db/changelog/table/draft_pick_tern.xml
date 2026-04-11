@@ -1,0 +1,23 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="CreateDraftPickTurnTable" author="KBelovodchenko">
+        <createTable tableName="draft_pick_turn">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_draft_pick_turn"/>
+            </column>
+            <column name="user_id" type="UUID"/>
+            <column name="draft_id" type="UUID"/>
+            <column name="turn_order" type="INT"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="draft_pick_turn" baseColumnNames="user_id"
+                                 constraintName="fk_draft_pick_turn_user" referencedTableName="user"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="draft_pick_turn" baseColumnNames="draft_id"
+                                 constraintName="fk_draft_pick_turn_draft" referencedTableName="draft"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>

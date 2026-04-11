@@ -49,18 +49,6 @@ public class TaskServiceImpl implements TaskService {
             throw exceptionUtility.securityException();
         }
 
-        if (taskCreateModel.isNotDraftTypeAndDraftTime()) {
-            throw exceptionUtility.notDraftTypeAndDraftTimeException();
-        }
-
-        if (taskCreateModel.isDraftTypeAndNotDraftTime()) {
-            throw exceptionUtility.draftTypeAndNotDraftTimeException();
-        }
-
-        if (taskCreateModel.isDraftStartTimeAfterDeadline()) {
-            throw exceptionUtility.draftTimeAfterDeadlineException();
-        }
-
         var task = createTaskFromCreateModel(user, course, taskCreateModel);
         task = taskRepository.save(task);
 
@@ -108,7 +96,6 @@ public class TaskServiceImpl implements TaskService {
                 .setText(taskEditModel.getText())
                 .setMaxScore(taskEditModel.getMaxScore())
                 .setDeadline(taskEditModel.getDeadlineTime())
-                .setDraftStartTime(taskEditModel.getDraftStartTime())
                 .setUpdatedAt(LocalDateTime.now());
 
         task = taskRepository.save(task);
@@ -209,7 +196,6 @@ public class TaskServiceImpl implements TaskService {
                 .setTeamFormationType(taskCreateModel.getTeamFormationType())
                 .setMaxScore(taskCreateModel.getMaxScore())
                 .setDeadline(taskCreateModel.getDeadlineTime())
-                .setDraftStartTime(taskCreateModel.getDraftStartTime())
                 .setCreatedAt(LocalDateTime.now());
     }
 }

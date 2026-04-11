@@ -133,6 +133,7 @@ app:
     file-not-found: Файл не найден
     files-not-found: Один или несколько файлов не найдены
     course-not-found: Курс не найден
+    draft-not-found: Драфт не найден
     task-not-found: Задание не найдено
     team-not-found: Команда не найдена
 
@@ -163,6 +164,9 @@ app:
     student-already-in-another-team: Студент уже состоит в другой команде этого задания
     student-already-in-this-team: Студент уже состоит в этой команде
     student-not-in-this-team: Студент не состоит в этой команде
+    get-teams-have-not-enough-captains-exception: Для выполнения данного действия нужно чтобы все команды имели капитана
+    draft-already-ended-exception: Нельзя выполнить данное действие, так как драфт уже закончился
+    draft-is-not-observable-by-user-exception: Текущий пользователь не может получить этот драфт
 
 jwt:
   secret:

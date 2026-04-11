@@ -20,10 +20,7 @@ import silverpancake.domain.entity.user.UserCourseRole;
 import silverpancake.domain.entity.userteam.UserTeam;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +51,7 @@ public class TeamServiceImpl implements TeamService {
         }
 
         teamRepository.flush();
-        teamFormationFactory.createTeamFormation(teamFormationType).formTeams(task, teams);
+        teamFormationFactory.createTeamFormation(teamFormationType).onTaskCreation(task, teams);
     }
 
     @Override
@@ -110,10 +107,11 @@ public class TeamServiceImpl implements TeamService {
         }
 
         if (team.getCaptain() != null) {
-            if (team.getCaptain().equals(student)) {
-                throw exceptionUtility.studentAlreadyCaptainException();
-            }
             throw exceptionUtility.teamAlreadyHasCaptainException();
+        }
+        var taskTeams = teamRepository.findTeamsByTask(task);
+        if (taskTeams.stream().anyMatch(t -> Objects.equals(t.getCaptain(), student))) {
+            throw exceptionUtility.studentAlreadyCaptainException();
         }
 
         var studentUserTeam = userTeamRepository.findByUserIdAndTeamTaskId(student.getId(), task.getId());
@@ -132,7 +130,19 @@ public class TeamServiceImpl implements TeamService {
         team.setCaptain(student);
         teamRepository.save(team);
 
+        checkAndDoLastCaptainSelectionLogic(task);
+
         return TeamMapper.toTeamModel(team);
+    }
+
+    private void checkAndDoLastCaptainSelectionLogic(Task task) {
+        boolean allTeamsHaveCaptains = teamRepository
+                .findTeamsByTask(task)
+                .stream()
+                .allMatch(team -> team.getCaptain() != null);
+        if (allTeamsHaveCaptains) {
+            teamFormationFactory.createTeamFormation(task.getTeamFormationType()).onLastCaptainSelection(task);
+        }
     }
 
     @Override

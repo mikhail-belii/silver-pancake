@@ -30,6 +30,12 @@ public class ExceptionUtility {
         return notFoundEx;
     }
 
+    public ExceptionWrapper draftNotFoundException() {
+        var notFoundEx = new ExceptionWrapper(new EntityNotFoundException());
+        notFoundEx.setErrorMessage(errorProperties.getDraftNotFound());
+        return notFoundEx;
+    }
+
     public ExceptionWrapper taskNotFoundException() {
         var notFoundEx = new ExceptionWrapper(new EntityNotFoundException());
         notFoundEx.setErrorMessage(errorProperties.getTaskNotFound());
@@ -201,6 +207,24 @@ public class ExceptionUtility {
     public ExceptionWrapper generateCodeFailedException() {
         var ex = new ExceptionWrapper(new Exception());
         ex.setErrorMessage(errorProperties.getGenerateCodeFailed());
+        return ex;
+    }
+
+    public ExceptionWrapper teamsHaveNotEnoughCaptainsException() {
+        var ex = new ExceptionWrapper(new Exception());
+        ex.setErrorMessage(errorProperties.getTeamsHaveNotEnoughCaptainsException());
+        return ex;
+    }
+
+    public ExceptionWrapper draftAlreadyEndedException() {
+        var ex = new ExceptionWrapper(new Exception());
+        ex.setErrorMessage(errorProperties.getDraftAlreadyEndedException());
+        return ex;
+    }
+
+    public ExceptionWrapper draftIsNotObservableByUserException() {
+        var ex = new ExceptionWrapper(new Exception());
+        ex.setErrorMessage(errorProperties.getDraftIsNotObservableByUserException());
         return ex;
     }
 }

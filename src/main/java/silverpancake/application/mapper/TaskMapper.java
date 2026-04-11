@@ -22,8 +22,8 @@ public class TaskMapper {
                 .setDeadline(task.getDeadline())
                 .setText(task.getText())
                 .setTitle(task.getTitle())
+                .setDraftId(task.getDraft() == null ? null : task.getDraft().getId())
                 .setMaxScore(task.getMaxScore())
-                .setDraftStartTime(task.getDraftStartTime())
                 .setUpdatedAt(task.getUpdatedAt())
                 .setTeamFormationType(task.getTeamFormationType());
     }

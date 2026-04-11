@@ -167,6 +167,8 @@ app:
     get-teams-have-not-enough-captains-exception: Для выполнения данного действия нужно чтобы все команды имели капитана
     draft-already-ended-exception: Нельзя выполнить данное действие, так как драфт уже закончился
     draft-is-not-observable-by-user-exception: Текущий пользователь не может получить этот драфт
+    team-joining-available-only-for-free-formation: Присоединение доступно только для задания со свободным формированием команд
+    task-deadline-expired: Дедлайн задания уже истек
 
 jwt:
   secret:

@@ -9,7 +9,7 @@ import silverpancake.domain.entity.team.Team;
 @UtilityClass
 @ExtensionMethod(SimpleUserMapper.class)
 public class TeamMapper {
-    public TeamModel toTeamModel(Team team) {
+    public TeamModel toModel(Team team) {
         if (team == null) {
             return null;
         }
@@ -22,7 +22,7 @@ public class TeamMapper {
                         : team.getTeamMembers().stream().map(ut -> ut.getUser().toModel()).toList());
     }
 
-    public TeamShortModel toTeamShortModel(Team team) {
+    public TeamShortModel toShortModel(Team team) {
         if (team == null) {
             return null;
         }

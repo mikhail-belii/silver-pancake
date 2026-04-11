@@ -43,4 +43,6 @@ public class ErrorProperties {
     private String teamsHaveNotEnoughCaptainsException;
     private String draftAlreadyEndedException;
     private String draftIsNotObservableByUserException;
+    private String teamJoiningAvailableOnlyForFreeFormation;
+    private String taskDeadlineExpired;
 }

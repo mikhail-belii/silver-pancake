@@ -64,7 +64,7 @@ public class TeamServiceImpl implements TeamService {
                 .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
         var teams = teamRepository.findTeamsByTask(task);
 
-        return new TeamShortListModel(teams.stream().map(TeamMapper::toTeamShortModel).toList());
+        return new TeamShortListModel(teams.stream().map(TeamMapper::toShortModel).toList());
     }
 
     @Override
@@ -78,7 +78,7 @@ public class TeamServiceImpl implements TeamService {
         userCourseRepository.findByUserAndCourse(user.getId(), task.getCourse().getId())
                 .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
 
-        return TeamMapper.toTeamModel(team);
+        return TeamMapper.toModel(team);
     }
 
     @Override
@@ -92,6 +92,8 @@ public class TeamServiceImpl implements TeamService {
                 .orElseThrow(exceptionUtility::taskNotFoundException);
         var userCourse = userCourseRepository.findByUserAndCourse(user.getId(), task.getCourse().getId())
                 .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
+
+        validateTaskDeadlineNotExpired(task);
 
         if (userCourse.getUserRole().equals(UserCourseRole.STUDENT)) {
             throw exceptionUtility.securityException();
@@ -132,7 +134,7 @@ public class TeamServiceImpl implements TeamService {
 
         checkAndDoLastCaptainSelectionLogic(task);
 
-        return TeamMapper.toTeamModel(team);
+        return TeamMapper.toModel(team);
     }
 
     private void checkAndDoLastCaptainSelectionLogic(Task task) {
@@ -182,6 +184,108 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @Transactional
+    public TeamModel joinTeam(UUID requestingUserId, UUID teamId) {
+        var user = userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var team = teamRepository.findById(teamId)
+                .orElseThrow(exceptionUtility::teamNotFoundException);
+        var task = taskRepository.findById(team.getTask().getId())
+                .orElseThrow(exceptionUtility::taskNotFoundException);
+        var userCourse = userCourseRepository.findByUserAndCourse(user.getId(), task.getCourse().getId())
+                .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
+
+        validateTaskDeadlineNotExpired(task);
+
+        if (!userCourse.getUserRole().equals(UserCourseRole.STUDENT)) {
+            throw exceptionUtility.securityException();
+        }
+
+        if (!task.getTeamFormationType().equals(TeamFormationType.FREE)) {
+            throw exceptionUtility.teamJoiningAvailableOnlyForFreeFormationException();
+        }
+
+        var studentCaptainTeam = teamRepository.findByCaptainIdAndTaskId(user.getId(), task.getId());
+        if (studentCaptainTeam.isPresent()) {
+            if (studentCaptainTeam.get().getId().equals(teamId)) {
+                throw exceptionUtility.studentAlreadyCaptainException();
+            }
+
+            throw exceptionUtility.studentAlreadyInAnotherTeamException();
+        }
+
+        var studentUserTeam = userTeamRepository.findByUserIdAndTeamTaskId(user.getId(), task.getId());
+        if (studentUserTeam.isPresent()) {
+            if (studentUserTeam.get().getTeam().getId().equals(teamId)) {
+                throw exceptionUtility.studentAlreadyInThisTeamException();
+            }
+
+            throw exceptionUtility.studentAlreadyInAnotherTeamException();
+        }
+
+        var userTeam = new UserTeam()
+                .setUser(user)
+                .setTeam(team)
+                .setCreatedAt(LocalDateTime.now());
+
+        userTeam = userTeamRepository.save(userTeam);
+
+        if (team.getTeamMembers() == null) {
+            team.setTeamMembers(new ArrayList<>());
+        }
+        team.getTeamMembers().add(userTeam);
+
+        return TeamMapper.toModel(team);
+    }
+
+    @Override
+    @Transactional
+    public TeamModel leaveTeam(UUID requestingUserId, UUID teamId) {
+        var user = userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var team = teamRepository.findById(teamId)
+                .orElseThrow(exceptionUtility::teamNotFoundException);
+        var task = taskRepository.findById(team.getTask().getId())
+                .orElseThrow(exceptionUtility::taskNotFoundException);
+        var userCourse = userCourseRepository.findByUserAndCourse(user.getId(), task.getCourse().getId())
+                .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
+
+        validateTaskDeadlineNotExpired(task);
+
+        if (!userCourse.getUserRole().equals(UserCourseRole.STUDENT)) {
+            throw exceptionUtility.securityException();
+        }
+
+        if (!task.getTeamFormationType().equals(TeamFormationType.FREE)) {
+            throw exceptionUtility.teamJoiningAvailableOnlyForFreeFormationException();
+        }
+
+        if (team.getCaptain() != null && team.getCaptain().getId().equals(user.getId())) {
+            team.setCaptain(null);
+            teamRepository.save(team);
+
+            return TeamMapper.toModel(team);
+        }
+
+        var studentUserTeam = userTeamRepository.findByUserIdAndTeamTaskId(user.getId(), task.getId());
+        if (studentUserTeam.isEmpty()) {
+            throw exceptionUtility.studentNotInThisTeamException();
+        }
+
+        var userTeam = studentUserTeam.get();
+        if (!userTeam.getTeam().getId().equals(teamId)) {
+            throw exceptionUtility.studentNotInThisTeamException();
+        }
+
+        userTeamRepository.delete(userTeam);
+        if (team.getTeamMembers() != null) {
+            team.getTeamMembers().removeIf(teamMember -> teamMember.getId().equals(userTeam.getId()));
+        }
+
+        return TeamMapper.toModel(team);
+    }
+
+    @Override
+    @Transactional
     public TeamModel addTeamMember(UUID requestingUserId, UUID teamId, UUID studentId) {
         var user = userRepository.findById(requestingUserId)
                 .orElseThrow(exceptionUtility::userNotFoundException);
@@ -191,6 +295,8 @@ public class TeamServiceImpl implements TeamService {
                 .orElseThrow(exceptionUtility::taskNotFoundException);
         var userCourse = userCourseRepository.findByUserAndCourse(user.getId(), task.getCourse().getId())
                 .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
+
+        validateTaskDeadlineNotExpired(task);
 
         if (userCourse.getUserRole().equals(UserCourseRole.STUDENT)) {
             throw exceptionUtility.securityException();
@@ -235,7 +341,7 @@ public class TeamServiceImpl implements TeamService {
         }
         team.getTeamMembers().add(userTeam);
 
-        return TeamMapper.toTeamModel(team);
+        return TeamMapper.toModel(team);
     }
 
     @Override
@@ -249,6 +355,8 @@ public class TeamServiceImpl implements TeamService {
                 .orElseThrow(exceptionUtility::taskNotFoundException);
         var userCourse = userCourseRepository.findByUserAndCourse(user.getId(), task.getCourse().getId())
                 .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
+
+        validateTaskDeadlineNotExpired(task);
 
         if (userCourse.getUserRole().equals(UserCourseRole.STUDENT)) {
             throw exceptionUtility.securityException();
@@ -267,7 +375,7 @@ public class TeamServiceImpl implements TeamService {
             team.setCaptain(null);
             teamRepository.save(team);
 
-            return TeamMapper.toTeamModel(team);
+            return TeamMapper.toModel(team);
         }
 
         var studentUserTeam = userTeamRepository.findByUserIdAndTeamTaskId(teamMember.getId(), task.getId());
@@ -285,7 +393,7 @@ public class TeamServiceImpl implements TeamService {
             team.getTeamMembers().removeIf(teamMemberEntity -> teamMemberEntity.getId().equals(userTeam.getId()));
         }
 
-        return TeamMapper.toTeamModel(team);
+        return TeamMapper.toModel(team);
     }
 
 
@@ -306,5 +414,11 @@ public class TeamServiceImpl implements TeamService {
         }
 
         return "Team " + (index + 1);
+    }
+
+    private void validateTaskDeadlineNotExpired(Task task) {
+        if (task.getDeadline() != null && LocalDateTime.now().isAfter(task.getDeadline())) {
+            throw exceptionUtility.taskDeadlineExpiredException();
+        }
     }
 }

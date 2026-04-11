@@ -13,6 +13,8 @@ import silverpancake.application.service.CourseService;
 import silverpancake.application.util.CourseCodeGenerator;
 import silverpancake.application.util.CourseUtility;
 import silverpancake.application.util.ExceptionUtility;
+import silverpancake.application.util.teamformation.TeamFormationFactory;
+import silverpancake.application.util.teamformation.strategy.DraftTeamFormation;
 import silverpancake.domain.entity.course.Course;
 import silverpancake.domain.entity.user.User;
 import silverpancake.domain.entity.user.UserCourseRole;
@@ -31,6 +33,7 @@ public class CourseServiceImpl  implements CourseService {
     private final CourseCodeGenerator courseCodeGenerator;
     private final ExceptionUtility exceptionUtility;
     private final CourseMapper courseMapper;
+    private final DraftTeamFormation draftTeamFormation;
 
     @Override
     @Transactional
@@ -120,7 +123,10 @@ public class CourseServiceImpl  implements CourseService {
 
         var userCourse = createUserCourseOnCourseJoin(course, user);
 
-        userCourseRepository.save(userCourse);
+        course.getCourseUsers().add(userCourse);
+        userCourseRepository.saveAndFlush(userCourse);
+
+        draftTeamFormation.notifyOnNewUserJoinedCourse(course);
 
         return courseMapper.toModel(course, userCourse.getUserRole());
     }

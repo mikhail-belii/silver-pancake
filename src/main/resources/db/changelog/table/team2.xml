@@ -9,4 +9,13 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="AddDraftId" author="MSidorov">
+        <addColumn tableName="team">
+            <column name="draft_id" type="UUID"/>
+        </addColumn>
+        <addForeignKeyConstraint baseTableName="team" baseColumnNames="draft_id"
+                                 constraintName="fk_team_draft" referencedTableName="draft"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
 </databaseChangeLog>

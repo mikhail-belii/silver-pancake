@@ -15,4 +15,8 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="RemoveDraftStartTime" author="KBelovodchenko">
+        <dropColumn tableName="task" columnName="draft_start_time"/>
+    </changeSet>
+
 </databaseChangeLog>

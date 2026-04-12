@@ -38,4 +38,36 @@
                                  referencedColumnNames="id"/>
     </changeSet>
 
+    <changeSet id="RemoveDeprecatedTaskAnswerColumns" author="aleksey.z">
+        <dropColumn tableName="task_answer" columnName="score"/>
+        <dropColumn tableName="task_answer" columnName="submitted_at"/>
+        <dropColumn tableName="task_answer" columnName="status"/>
+    </changeSet>
+
+    <changeSet id="MakeTaskAnswerColumnsNullable" author="aleksey.z">
+        <dropNotNullConstraint tableName="task_answer"
+                               columnName="user_id"
+                               columnDataType="UUID"/>
+        <dropNotNullConstraint tableName="task_answer"
+                               columnName="task_id"
+                               columnDataType="UUID"/>
+    </changeSet>
+
+    <changeSet id="AddTaskAnswerTeamFinalTaskAnswerRelation" author="aleksey.z">
+        <addColumn tableName="task_answer">
+            <column name="team_final_task_answer_id" type="UUID"/>
+            <column name="uploaded_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </addColumn>
+
+        <addForeignKeyConstraint baseTableName="task_answer"
+                                 baseColumnNames="team_final_task_answer_id"
+                                 constraintName="fk_task_answer_team_final_task_answer"
+                                 referencedTableName="team_final_task_answer"
+                                 referencedColumnNames="id"/>
+
+        <addUniqueConstraint tableName="task_answer"
+                             columnNames="team_final_task_answer_id"
+                             constraintName="uk_task_answer_team_final_task_answer"/>
+    </changeSet>
+
 </databaseChangeLog>

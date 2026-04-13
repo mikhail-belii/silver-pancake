@@ -23,7 +23,7 @@ public class TaskAnswerController {
     @Operation(summary = "Прикрепление ответа на задание, !!! возвращает модель финального задания команды")
     public FinalTaskAnswerModel attachTaskAnswer(@PathVariable UUID taskId, @RequestBody List<FileModel> files,
                                                  @RequestAttribute("authModel") AuthorizationModel authModel) {
-        return null;
+        return taskAnswerService.attachAnswer(taskId, files, authModel.getUserId());
     }
 
     @GetMapping("/task/{taskId}/team/{teamId}/final")

@@ -1,8 +1,6 @@
 package silverpancake.domain.entity.task;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;

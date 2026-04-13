@@ -9,11 +9,14 @@ import silverpancake.application.repository.TaskAnswerRepository;
 import silverpancake.application.repository.TaskRepository;
 import silverpancake.application.repository.TeamRepository;
 import silverpancake.application.repository.TeamFinalTaskAnswerRepository;
+import silverpancake.application.repository.UserTeamRepository;
 import silverpancake.application.util.ExceptionUtility;
 import silverpancake.domain.entity.task.Task;
 import silverpancake.domain.entity.team.Team;
 import silverpancake.domain.entity.teamfinaltaskanswer.TeamFinalTaskAnswer;
+import silverpancake.domain.entity.userteam.UserTeam;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +31,7 @@ public class TaskAnswerService {
     private final TeamRepository teamRepository;
     private final TaskAnswerRepository taskAnswerRepository;
     private final TeamFinalTaskAnswerRepository teamFinalTaskAnswerRepository;
+    private final UserTeamRepository userTeamRepository;
     private final ExceptionUtility exceptionUtility;
 
     public void createTaskAnswers(Task task) {
@@ -79,6 +83,18 @@ public class TaskAnswerService {
                 .toList();
     }
 
+    public void submitTaskAnswer(UUID requestingUserId, UUID taskId) {
+        var teamFinalTaskAnswer = getRequestingUserTeamFinalTaskAnswer(requestingUserId, taskId);
+        teamFinalTaskAnswer.setSubmittedAt(LocalDateTime.now());
+        teamFinalTaskAnswerRepository.save(teamFinalTaskAnswer);
+    }
+
+    public void unsubmitTaskAnswer(UUID requestingUserId, UUID taskId) {
+        var teamFinalTaskAnswer = getRequestingUserTeamFinalTaskAnswer(requestingUserId, taskId);
+        teamFinalTaskAnswer.setSubmittedAt(null);
+        teamFinalTaskAnswerRepository.save(teamFinalTaskAnswer);
+    }
+
     private TeamFinalTaskAnswer getValidatedTeamFinalTaskAnswer(UUID requestingUserId, UUID taskId, UUID teamId) {
         taskRepository.findById(taskId)
                 .orElseThrow(exceptionUtility::taskNotFoundException);
@@ -94,6 +110,25 @@ public class TaskAnswerService {
 
         return teamFinalTaskAnswerRepository.findByTaskIdAndTeamId(taskId, teamId)
                 .orElseThrow(exceptionUtility::teamNotFoundException);
+    }
+
+    private TeamFinalTaskAnswer getRequestingUserTeamFinalTaskAnswer(UUID requestingUserId, UUID taskId) {
+        taskRepository.findById(taskId)
+                .orElseThrow(exceptionUtility::taskNotFoundException);
+
+        var team = getRequestingUserTeam(requestingUserId, taskId);
+        checkIfUserInTeam(requestingUserId, team);
+
+        return teamFinalTaskAnswerRepository.findByTaskIdAndTeamId(taskId, team.getId())
+                .orElseThrow(exceptionUtility::teamNotFoundException);
+    }
+
+    private Team getRequestingUserTeam(UUID requestingUserId, UUID taskId) {
+        var captainTeam = teamRepository.findByCaptainIdAndTaskId(requestingUserId, taskId);
+
+        return captainTeam.orElseGet(() -> userTeamRepository.findByUserIdAndTeamTaskId(requestingUserId, taskId)
+                .map(UserTeam::getTeam)
+                .orElseThrow(exceptionUtility::teamNotFoundException));
     }
 
     private void checkIfUserInTeam(UUID requestingUserId, Team team) {

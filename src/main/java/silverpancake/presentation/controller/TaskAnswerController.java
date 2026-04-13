@@ -44,14 +44,14 @@ public class TaskAnswerController {
     @Operation(summary = "Отправить ответ на задание (финальный)")
     public void submitTaskAnswer(@PathVariable UUID taskId,
                                  @RequestAttribute("authModel") AuthorizationModel authModel) {
-
+        taskAnswerService.submitTaskAnswer(authModel.getUserId(), taskId);
     }
 
     @PostMapping("/task/{taskId}/unsubmit")
     @Operation(summary = "Отменить отправку ответа на задание (финальный)")
     public void unsubmitTaskAnswer(@PathVariable UUID taskId,
                                  @RequestAttribute("authModel") AuthorizationModel authModel) {
-
+        taskAnswerService.unsubmitTaskAnswer(authModel.getUserId(), taskId);
     }
 
     @PostMapping("task/{taskId}/answers/{answerId}/vote")

@@ -43,7 +43,8 @@ public class TeamFinalTaskAnswer {
     @JoinColumn(name = "task_id")
     private Task task;
 
-    @OneToOne(mappedBy = "teamFinalTaskAnswer", fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "final_task_answer_id", unique = true)
     private TaskAnswer finalTaskAnswer;
 
     @UpdateTimestamp

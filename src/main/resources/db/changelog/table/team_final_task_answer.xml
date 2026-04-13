@@ -35,4 +35,20 @@
                              constraintName="uk_team_final_task_answer_team_task"/>
     </changeSet>
 
+    <changeSet id="AddTeamFinalTaskAnswerToTaskAnswerRelation" author="aleksey.z">
+        <addColumn tableName="team_final_task_answer">
+            <column name="final_task_answer_id" type="UUID"/>
+        </addColumn>
+
+        <addForeignKeyConstraint baseTableName="team_final_task_answer"
+                                 baseColumnNames="final_task_answer_id"
+                                 constraintName="fk_team_final_task_answer_final_task_answer"
+                                 referencedTableName="task_answer"
+                                 referencedColumnNames="id"/>
+
+        <addUniqueConstraint tableName="team_final_task_answer"
+                             columnNames="final_task_answer_id"
+                             constraintName="uk_team_final_task_answer_final_task_answer"/>
+    </changeSet>
+
 </databaseChangeLog>

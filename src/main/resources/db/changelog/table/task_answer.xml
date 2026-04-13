@@ -55,19 +55,23 @@
 
     <changeSet id="AddTaskAnswerTeamFinalTaskAnswerRelation" author="aleksey.z">
         <addColumn tableName="task_answer">
-            <column name="team_final_task_answer_id" type="UUID"/>
             <column name="uploaded_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
         </addColumn>
+    </changeSet>
 
-        <addForeignKeyConstraint baseTableName="task_answer"
-                                 baseColumnNames="team_final_task_answer_id"
-                                 constraintName="fk_task_answer_team_final_task_answer"
-                                 referencedTableName="team_final_task_answer"
-                                 referencedColumnNames="id"/>
+    <changeSet id="RemoveTaskAnswerTeamFinalTaskAnswerRelation" author="aleksey.z">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="task_answer" columnName="team_final_task_answer_id"/>
+        </preConditions>
 
-        <addUniqueConstraint tableName="task_answer"
-                             columnNames="team_final_task_answer_id"
-                             constraintName="uk_task_answer_team_final_task_answer"/>
+        <dropForeignKeyConstraint baseTableName="task_answer"
+                                  constraintName="fk_task_answer_team_final_task_answer"/>
+
+        <dropUniqueConstraint tableName="task_answer"
+                              constraintName="uk_task_answer_team_final_task_answer"/>
+
+        <dropColumn tableName="task_answer"
+                    columnName="team_final_task_answer_id"/>
     </changeSet>
 
 </databaseChangeLog>

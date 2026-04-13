@@ -10,6 +10,7 @@ import silverpancake.application.model.task.TaskShortListModel;
 import silverpancake.application.repository.*;
 import silverpancake.application.service.TaskService;
 import silverpancake.application.service.TeamService;
+import silverpancake.application.serviceimpl.taskanswer.TaskAnswerService;
 import silverpancake.application.util.ExceptionUtility;
 import silverpancake.domain.entity.course.Course;
 import silverpancake.domain.entity.file.File;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
+
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final FileRepository fileRepository;
@@ -35,6 +37,7 @@ public class TaskServiceImpl implements TaskService {
     private final UserCourseRepository userCourseRepository;
     private final ExceptionUtility exceptionUtility;
     private final TeamService teamService;
+    private final TaskAnswerService taskAnswerService;
 
     @Override
     public TaskModel createTask(UUID requestingUserId, UUID courseId, TaskCreateModel taskCreateModel) {
@@ -61,6 +64,8 @@ public class TaskServiceImpl implements TaskService {
         taskRepository.saveAndFlush(task);
 
         teamService.createTeamsOnTaskCreated(task, taskCreateModel.getTeamsAmount(), taskCreateModel.getTeamFormationType());
+
+        taskAnswerService.createTaskAnswers(task);
 
         return TaskMapper.toModel(task);
     }

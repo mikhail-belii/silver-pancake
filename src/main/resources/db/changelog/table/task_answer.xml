@@ -38,4 +38,48 @@
                                  referencedColumnNames="id"/>
     </changeSet>
 
+    <changeSet id="RemoveDeprecatedTaskAnswerColumns" author="aleksey.z">
+        <dropColumn tableName="task_answer" columnName="score"/>
+        <dropColumn tableName="task_answer" columnName="submitted_at"/>
+        <dropColumn tableName="task_answer" columnName="status"/>
+    </changeSet>
+
+    <changeSet id="MakeTaskAnswerColumnsNullable" author="aleksey.z">
+        <dropNotNullConstraint tableName="task_answer"
+                               columnName="user_id"
+                               columnDataType="UUID"/>
+        <dropNotNullConstraint tableName="task_answer"
+                               columnName="task_id"
+                               columnDataType="UUID"/>
+    </changeSet>
+
+    <changeSet id="AddTaskAnswerTeamFinalTaskAnswerRelation" author="aleksey.z">
+        <addColumn tableName="task_answer">
+            <column name="uploaded_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="RemoveTaskAnswerTeamFinalTaskAnswerRelation" author="aleksey.z">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="task_answer" columnName="team_final_task_answer_id"/>
+        </preConditions>
+
+        <dropForeignKeyConstraint baseTableName="task_answer"
+                                  constraintName="fk_task_answer_team_final_task_answer"/>
+
+        <dropUniqueConstraint tableName="task_answer"
+                              constraintName="uk_task_answer_team_final_task_answer"/>
+
+        <dropColumn tableName="task_answer"
+                    columnName="team_final_task_answer_id"/>
+    </changeSet>
+
+    <changeSet id="AddVotesToTaskAnswer" author="aleksey.z">
+        <addColumn tableName="task_answer">
+            <column name="votes" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

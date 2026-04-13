@@ -17,5 +17,6 @@
     <include file="db/changelog/table/task_answer.xml"/>
     <include file="db/changelog/table/user_team.xml"/>
     <include file="db/changelog/table/file.xml"/>
+    <include file="db/changelog/table/team_final_task_answer.xml"/>
 
 </databaseChangeLog>

@@ -1,0 +1,54 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="CreateTeamFinalTaskAnswerTable" author="aleksey.z">
+        <createTable tableName="team_final_task_answer">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_team_final_task_answer"/>
+            </column>
+            <column name="score" type="INT" defaultValueNumeric="0"/>
+            <column name="submitted_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="status" type="VARCHAR(32)" defaultValue="NOT_COMPLETED"/>
+            <column name="team_id" type="UUID"/>
+            <column name="task_id" type="UUID"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="AddTeamFinalTaskAnswerForeignKeys" author="aleksey.z">
+        <addForeignKeyConstraint baseTableName="team_final_task_answer"
+                                 baseColumnNames="team_id"
+                                 constraintName="fk_team_final_task_answer_team"
+                                 referencedTableName="team"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="team_final_task_answer"
+                                 baseColumnNames="task_id"
+                                 constraintName="fk_team_final_task_answer_task"
+                                 referencedTableName="task"
+                                 referencedColumnNames="id"/>
+
+        <addUniqueConstraint tableName="team_final_task_answer"
+                             columnNames="team_id, task_id"
+                             constraintName="uk_team_final_task_answer_team_task"/>
+    </changeSet>
+
+    <changeSet id="AddTeamFinalTaskAnswerToTaskAnswerRelation" author="aleksey.z">
+        <addColumn tableName="team_final_task_answer">
+            <column name="final_task_answer_id" type="UUID"/>
+        </addColumn>
+
+        <addForeignKeyConstraint baseTableName="team_final_task_answer"
+                                 baseColumnNames="final_task_answer_id"
+                                 constraintName="fk_team_final_task_answer_final_task_answer"
+                                 referencedTableName="task_answer"
+                                 referencedColumnNames="id"/>
+
+        <addUniqueConstraint tableName="team_final_task_answer"
+                             columnNames="final_task_answer_id"
+                             constraintName="uk_team_final_task_answer_final_task_answer"/>
+    </changeSet>
+
+</databaseChangeLog>

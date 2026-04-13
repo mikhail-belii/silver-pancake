@@ -1,8 +1,10 @@
 package silverpancake.domain.entity.taskanswer;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.CreationTimestamp;
 import silverpancake.domain.entity.file.File;
 import silverpancake.domain.entity.task.Task;
 import silverpancake.domain.entity.user.User;
@@ -14,20 +16,14 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "task_answer")
-@Data
+@Getter
+@Setter
 @Accessors(chain = true)
 public class TaskAnswer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
-    private Integer score = 0;
-
-    private LocalDateTime submittedAt = null;
-
-    @Enumerated(EnumType.STRING)
-    private TaskAnswerStatus status = TaskAnswerStatus.NOT_COMPLETED;
 
     @OneToMany(mappedBy = "taskAnswer")
     private List<File> files = new ArrayList<>();
@@ -40,4 +36,9 @@ public class TaskAnswer {
     @JoinColumn(name = "task_id")
     private Task task;
 
+    private int votes = 0;
+
+    @CreationTimestamp
+    @Column(name = "uploaded_at", updatable = false)
+    private LocalDateTime uploadedAt;
 }

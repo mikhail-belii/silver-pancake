@@ -30,14 +30,14 @@ public class TaskAnswerController {
     @Operation(summary = "Получение финального ответа команды")
     public FinalTaskAnswerModel getTeamFinalAnswer(@PathVariable UUID taskId, @PathVariable UUID teamId,
                                                    @RequestAttribute("authModel") AuthorizationModel authModel) {
-        return null;
+        return taskAnswerService.getTeamFinalAnswer(authModel.getUserId(), taskId, teamId);
     }
 
     @GetMapping("/task/{taskId}/team/{teamId}/all")
     @Operation(summary = "Получение всех ответов команды")
-    public List<TaskAnswerModel> getAllTeamTaskAnswers(@PathVariable UUID taskId, @PathVariable String teamId,
+    public List<TaskAnswerModel> getAllTeamTaskAnswers(@PathVariable UUID taskId, @PathVariable UUID teamId,
                                                        @RequestAttribute("authModel") AuthorizationModel authModel) {
-        return null;
+        return taskAnswerService.getAllTeamTaskAnswers(authModel.getUserId(), taskId, teamId);
     }
 
     @PostMapping("/task/{taskId}/submit")
@@ -47,16 +47,23 @@ public class TaskAnswerController {
 
     }
 
+    @PostMapping("/task/{taskId}/unsubmit")
+    @Operation(summary = "Отменить отправку ответа на задание (финальный)")
+    public void unsubmitTaskAnswer(@PathVariable UUID taskId,
+                                 @RequestAttribute("authModel") AuthorizationModel authModel) {
+
+    }
+
     @PostMapping("task/{taskId}/answers/{answerId}/vote")
     @Operation(summary = "Отдать голос за ответ на задание")
-    public void voteForAnswer(@PathVariable String taskId, @PathVariable String answerId,
+    public void voteForAnswer(@PathVariable UUID taskId, @PathVariable UUID answerId,
                               @RequestAttribute("authModel") AuthorizationModel authModel) {
 
     }
 
     @PostMapping("/task/{taskId}/answers/{answerId}/select")
     @Operation(summary = "[Капитан] Выбор ответа, который будет считаться финальным")
-    public void selectAnswer(@PathVariable String taskId, @PathVariable String answerId,
+    public void selectAnswer(@PathVariable UUID taskId, @PathVariable UUID answerId,
                              @RequestAttribute("authModel") AuthorizationModel authModel) {
 
     }

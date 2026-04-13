@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.Length;
+import silverpancake.domain.entity.task.Task;
 import silverpancake.domain.entity.usercourse.UserCourse;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,9 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @OneToMany(mappedBy = "course")
+    private List<Task> tasks;
 
     @Length(max = 128)
     private String name;

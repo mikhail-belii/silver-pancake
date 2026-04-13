@@ -3,6 +3,7 @@ package silverpancake.application.model.draft;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import silverpancake.application.model.team.TeamModel;
+import silverpancake.application.model.user.UserModel;
 
 import java.util.List;
 import java.util.UUID;
@@ -12,6 +13,8 @@ import java.util.UUID;
 public class DraftModel {
 
     private UUID id;
+
+    private UserModel currentSelectingUser;
 
     private List<DraftPickTurnModel> draftPickTurns;
 

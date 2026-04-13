@@ -41,7 +41,7 @@ public class TeamController {
     }
 
     @PostMapping("{teamId}/member/{studentId}")
-    @Operation(summary = "Add team member (only for teachers)")
+    @Operation(summary = "Add team member (only for teachers/captains)")
     public Response<TeamModel> addTeamMember(@RequestAttribute("authModel") AuthorizationModel authModel,
                                                  @PathVariable UUID teamId,
                                                  @PathVariable UUID studentId) {

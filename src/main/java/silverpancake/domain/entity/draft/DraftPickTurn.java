@@ -5,8 +5,6 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import silverpancake.domain.entity.user.User;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Entity

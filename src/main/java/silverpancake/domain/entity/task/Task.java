@@ -10,6 +10,7 @@ import org.hibernate.validator.constraints.Length;
 import silverpancake.domain.entity.course.Course;
 import silverpancake.domain.entity.draft.Draft;
 import silverpancake.domain.entity.file.File;
+import silverpancake.domain.entity.team.Team;
 import silverpancake.domain.entity.user.User;
 
 import java.time.LocalDateTime;
@@ -47,6 +48,9 @@ public class Task {
 
     @OneToMany(mappedBy = "task")
     private List<File> files;
+
+    @OneToMany(mappedBy = "task")
+    private List<Team> teams;
 
     private LocalDateTime createdAt;
 

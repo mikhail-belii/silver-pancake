@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import silverpancake.application.model.draft.DraftModel;
 import silverpancake.presentation.websocket.model.*;
+import silverpancake.presentation.websocket.model.draft.DraftEndedModel;
 import silverpancake.presentation.websocket.model.draft.OrderOfSelectionChangedModel;
+import silverpancake.presentation.websocket.model.draft.TeamStructureChanged;
 
 import java.io.IOException;
 import java.util.List;
@@ -41,6 +43,37 @@ public class WebSocketSender {
             try {
                 session.getSession().sendMessage(webSocketParser
                         .serializeObjectToWebSocketResponse(WebSocketResponseType.ORDER_OF_SELECTION_CHANGED, orderOfSelectionChangedModel));
+            } catch (IOException e) {
+                websocketSessionManager.returnError(session.getSession(), e.getMessage());
+            }
+        });
+    }
+
+    public void sendTeamStructureChangedMessage(
+            TeamStructureChanged teamStructureChanged,
+            UUID draftId
+    ) {
+        List<AuthenticatedSocketSession> sessionsToSend = websocketSessionManager.getSessionsByDraftId(draftId);
+
+        sessionsToSend.forEach(session -> {
+            try {
+                session.getSession().sendMessage(webSocketParser
+                        .serializeObjectToWebSocketResponse(WebSocketResponseType.TEAM_STRUCTURE_CHANGED, teamStructureChanged));
+            } catch (IOException e) {
+                websocketSessionManager.returnError(session.getSession(), e.getMessage());
+            }
+        });
+    }
+
+    public void sendDraftEndedMessage(
+            UUID draftId
+    ) {
+        List<AuthenticatedSocketSession> sessionsToSend = websocketSessionManager.getSessionsByDraftId(draftId);
+
+        sessionsToSend.forEach(session -> {
+            try {
+                session.getSession().sendMessage(webSocketParser
+                        .serializeObjectToWebSocketResponse(WebSocketResponseType.DRAFT_ENDED, null));
             } catch (IOException e) {
                 websocketSessionManager.returnError(session.getSession(), e.getMessage());
             }

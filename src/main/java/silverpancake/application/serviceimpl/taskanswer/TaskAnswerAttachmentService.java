@@ -34,6 +34,6 @@ public class TaskAnswerAttachmentService {
         var processor = finalTaskAnswerModelMap.get(TaskAnswerFinalizationType.FIRST_ATTACHMENT);
 //        var processor = finalTaskAnswerModelMap.get(task.getTaskAnswerFinalizationType());
 
-        return processor.process();
+        return processor.process(team, task, taskAnswer);
     }
 }

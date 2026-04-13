@@ -48,6 +48,12 @@ public class ExceptionUtility {
         return notFoundEx;
     }
 
+    public ExceptionWrapper teamFinalTaskAnswerNotFoundException() {
+        var notFoundEx = new ExceptionWrapper(new EntityNotFoundException());
+        notFoundEx.setErrorMessage(errorProperties.getTeamFinalTaskAnswerNotFound());
+        return notFoundEx;
+    }
+
     public ExceptionWrapper userWithEmailExistsException() {
         var badRequestEx = new ExceptionWrapper(new BadRequestException());
         badRequestEx.setErrorMessage(errorProperties.getUserWithEmailExists());

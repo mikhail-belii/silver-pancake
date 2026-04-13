@@ -136,6 +136,7 @@ app:
     draft-not-found: Драфт не найден
     task-not-found: Задание не найдено
     team-not-found: Команда не найдена
+    team-final-task-answer-not-found: Финальный ответ команды не найден
 
     invalid-access-token: Токен доступа некорректный или истек
     invalid-refresh-token: Токен обновления некорректный или истек

@@ -25,5 +25,9 @@ public class TaskAnswerModel {
 
     private boolean finalDecision = false;
 
+    private int votesCount = 0;
+
+    private List<UUID> votedUserIds = new ArrayList<>();
+
     private LocalDateTime uploadedAt;
 }

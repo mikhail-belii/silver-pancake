@@ -21,7 +21,7 @@ public class TaskAnswerController {
 
     @PostMapping("/task/{taskId}/answers")
     @Operation(summary = "Прикрепление ответа на задание, !!! возвращает модель финального задания команды")
-    public FinalTaskAnswerModel attackTaskAnswer(@PathVariable UUID taskId, @RequestBody List<FileModel> files,
+    public FinalTaskAnswerModel attachTaskAnswer(@PathVariable UUID taskId, @RequestBody List<FileModel> files,
                                                  @RequestAttribute("authModel") AuthorizationModel authModel) {
         return null;
     }
@@ -55,7 +55,7 @@ public class TaskAnswerController {
     }
 
     @PostMapping("task/{taskId}/answers/{answerId}/vote")
-    @Operation(summary = "Отдать голос за ответ на задание")
+    @Operation(summary = "Отдать голос за ответ на задание. При повторном голосовании за тот же вариант, убирает голос")
     public void voteForAnswer(@PathVariable UUID taskId, @PathVariable UUID answerId,
                               @RequestAttribute("authModel") AuthorizationModel authModel) {
 

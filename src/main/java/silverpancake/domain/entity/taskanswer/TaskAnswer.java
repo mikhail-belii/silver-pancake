@@ -36,7 +36,13 @@ public class TaskAnswer {
     @JoinColumn(name = "task_id")
     private Task task;
 
-    private int votes = 0;
+    @ManyToMany
+    @JoinTable(
+            name = "task_answer_vote",
+            joinColumns = @JoinColumn(name = "task_answer_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> votedUsers = new ArrayList<>();
 
     @CreationTimestamp
     @Column(name = "uploaded_at", updatable = false)

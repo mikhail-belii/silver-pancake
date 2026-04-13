@@ -1,9 +1,15 @@
 package silverpancake.presentation.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import silverpancake.application.model.file.FileModel;
+import silverpancake.application.model.finaltaskanswer.FinalTaskAnswerModel;
+import silverpancake.application.model.taskanswer.TaskAnswerModel;
 import silverpancake.application.serviceimpl.taskanswer.TaskAnswerService;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -11,4 +17,40 @@ import silverpancake.application.serviceimpl.taskanswer.TaskAnswerService;
 public class TaskAnswerController {
 
     private final TaskAnswerService taskAnswerService;
+
+    @PostMapping("/task/{taskId}/answers")
+    @Operation(summary = "Прикрепление ответа на задание, !!! возвращает модель финального задания команды")
+    public FinalTaskAnswerModel attackTaskAnswer(@PathVariable UUID taskId, @RequestBody List<FileModel> files) {
+        return null;
+    }
+
+    @GetMapping("/task/{taskId}/team/{teamId}/final")
+    @Operation(summary = "Получение финального ответа команды")
+    public FinalTaskAnswerModel getTeamFinalAnswer(@PathVariable UUID taskId, @PathVariable UUID teamId) {
+        return null;
+    }
+
+    @GetMapping("/task/{taskId}/team/{teamId}/all")
+    @Operation(summary = "Получение всех ответов команды")
+    public List<TaskAnswerModel> getAllTeamTaskAnswers(@PathVariable UUID taskId, @PathVariable String teamId) {
+        return null;
+    }
+
+    @PostMapping("/task/{taskId}/submit")
+    @Operation(summary = "Отправить ответ на задание (финальный)")
+    public void submitTaskAnswer(@PathVariable UUID taskId) {
+
+    }
+
+    @PostMapping("task/{taskId}/answers/{answerId}/vote")
+    @Operation(summary = "Отдать голос за ответ на задание")
+    public void voteForAnswer(@PathVariable String taskId, @PathVariable String answerId) {
+
+    }
+
+    @PostMapping("/task/{taskId}/answers/{answerId}/select")
+    @Operation(summary = "[Капитан] Выбор ответа, который будет считаться финальным")
+    public void selectAnswer(@PathVariable String taskId, @PathVariable String answerId) {
+
+    }
 }

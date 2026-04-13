@@ -36,6 +36,8 @@ public class TaskAnswer {
     @JoinColumn(name = "task_id")
     private Task task;
 
+    private int votes = 0;
+
     @CreationTimestamp
     @Column(name = "uploaded_at", updatable = false)
     private LocalDateTime uploadedAt;

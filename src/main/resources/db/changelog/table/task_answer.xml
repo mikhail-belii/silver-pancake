@@ -74,4 +74,12 @@
                     columnName="team_final_task_answer_id"/>
     </changeSet>
 
+    <changeSet id="AddVotesToTaskAnswer" author="aleksey.z">
+        <addColumn tableName="task_answer">
+            <column name="votes" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

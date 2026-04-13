@@ -49,8 +49,10 @@ public class TaskAnswerService {
                 .orElseThrow(exceptionUtility::taskNotFoundException);
         var user = userRepository.findById(requestingUserId)
                 .orElseThrow(exceptionUtility::userNotFoundException);
+
         var team = getRequestingUserTeam(requestingUserId, taskId);
         checkIfUserInTeam(requestingUserId, team);
+
         var taskAnswer = createTaskAnswer(task, user, files);
 
         return taskAnswerAttachmentService.attachAnswer(team, task, taskAnswer);

@@ -25,7 +25,8 @@ public class TaskMapper {
                 .setDraftId(task.getDraft() == null ? null : task.getDraft().getId())
                 .setMaxScore(task.getMaxScore())
                 .setUpdatedAt(task.getUpdatedAt())
-                .setTeamFormationType(task.getTeamFormationType());
+                .setTeamFormationType(task.getTeamFormationType())
+                .setTaskAnswerFinalizationType(task.getTaskAnswerFinalizationType());
     }
 
     public TaskShortModel toShortModel(Task task) {

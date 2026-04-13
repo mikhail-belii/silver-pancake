@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import silverpancake.application.serviceimpl.taskanswer.strategy.TaskAnswerFinalizationType;
 import silverpancake.domain.entity.task.TeamFormationType;
 
 import java.time.LocalDateTime;
@@ -29,6 +30,8 @@ public class TaskCreateModel {
     private LocalDateTime deadlineTime;
     @NotNull
     private TeamFormationType teamFormationType;
+    @NotNull
+    private TaskAnswerFinalizationType taskAnswerFinalizationType;
     @NotNull
     @Min(value = 1, message = "Количество команд должно находиться в диапазоне от 1 до 50")
     @Max(value = 50, message = "Количество команд должно находиться в диапазоне от 1 до 50")

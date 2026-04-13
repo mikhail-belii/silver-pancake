@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.Length;
+import silverpancake.application.serviceimpl.taskanswer.strategy.TaskAnswerFinalizationType;
 import silverpancake.domain.entity.course.Course;
 import silverpancake.domain.entity.draft.Draft;
 import silverpancake.domain.entity.file.File;
@@ -54,4 +55,7 @@ public class Task {
 
     @Enumerated(EnumType.STRING)
     private TeamFormationType teamFormationType;
+
+    @Enumerated(EnumType.STRING)
+    private TaskAnswerFinalizationType taskAnswerFinalizationType;
 }

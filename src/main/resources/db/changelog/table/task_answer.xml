@@ -82,4 +82,33 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="ReplaceVotesColumnWithTaskAnswerVoteTable" author="aleksey.z">
+        <dropColumn tableName="task_answer" columnName="votes"/>
+
+        <createTable tableName="task_answer_vote">
+            <column name="task_answer_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="task_answer_vote"
+                       columnNames="task_answer_id, user_id"
+                       constraintName="pk_task_answer_vote"/>
+
+        <addForeignKeyConstraint baseTableName="task_answer_vote"
+                                 baseColumnNames="task_answer_id"
+                                 constraintName="fk_task_answer_vote_task_answer"
+                                 referencedTableName="task_answer"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="task_answer_vote"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_task_answer_vote_user"
+                                 referencedTableName="user"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
 </databaseChangeLog>

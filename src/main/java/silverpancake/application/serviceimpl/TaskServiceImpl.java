@@ -172,7 +172,7 @@ public class TaskServiceImpl implements TaskService {
             }
 
             var attachedToAnotherPost = file.getTask() != null
-                    && (currentTaskId == null || !file.getTask().getId().equals(currentTaskId));
+                    && (!file.getTask().getId().equals(currentTaskId));
             if (attachedToAnotherPost || file.getTaskAnswer() != null) {
                 throw exceptionUtility.fileAlreadyAttachedException();
             }
@@ -199,6 +199,7 @@ public class TaskServiceImpl implements TaskService {
                 .setTitle(taskCreateModel.getTitle())
                 .setText(taskCreateModel.getText())
                 .setTeamFormationType(taskCreateModel.getTeamFormationType())
+                .setTaskAnswerFinalizationType(taskCreateModel.getTaskAnswerFinalizationType())
                 .setMaxScore(taskCreateModel.getMaxScore())
                 .setDeadline(taskCreateModel.getDeadlineTime())
                 .setCreatedAt(LocalDateTime.now());

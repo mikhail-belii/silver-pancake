@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import silverpancake.application.model.finaltaskanswer.FinalTaskAnswerModel;
 import silverpancake.application.serviceimpl.taskanswer.strategy.TaskAnswerFinalizationType;
 import silverpancake.application.serviceimpl.taskanswer.strategy.TaskAttachmentStrategy;
+import silverpancake.domain.entity.task.Task;
+import silverpancake.domain.entity.taskanswer.TaskAnswer;
+import silverpancake.domain.entity.team.Team;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,10 +29,11 @@ public class TaskAnswerAttachmentService {
                 .collect(Collectors.toUnmodifiableMap(TaskAttachmentStrategy::getType, Function.identity()));
     }
 
-    public FinalTaskAnswerModel attachAnswer() {
+    public FinalTaskAnswerModel attachAnswer(Team team, Task task, TaskAnswer taskAnswer) {
 
         var processor = finalTaskAnswerModelMap.get(TaskAnswerFinalizationType.FIRST_ATTACHMENT);
+//        var processor = finalTaskAnswerModelMap.get(task.getTaskAnswerFinalizationType());
 
-        return processor.process();
+        return processor.process(team, task, taskAnswer);
     }
 }

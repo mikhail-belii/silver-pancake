@@ -19,4 +19,10 @@
         <dropColumn tableName="task" columnName="draft_start_time"/>
     </changeSet>
 
+    <changeSet id="AddTaskAnswerFinalizationTypeToTask" author="aleksey.z">
+        <addColumn tableName="task">
+            <column name="task_answer_finalization_type" type="VARCHAR(32)"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

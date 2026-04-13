@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import silverpancake.application.model.draft.DraftModel;
 import silverpancake.application.model.file.FileModel;
 import silverpancake.application.model.user.UserModel;
+import silverpancake.application.serviceimpl.taskanswer.strategy.TaskAnswerFinalizationType;
 import silverpancake.domain.entity.task.TeamFormationType;
 
 import java.time.LocalDateTime;
@@ -29,4 +29,5 @@ public class TaskModel {
     private UUID draftId;
     private Integer maxScore;
     private TeamFormationType teamFormationType;
+    private TaskAnswerFinalizationType taskAnswerFinalizationType;
 }

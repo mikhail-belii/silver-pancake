@@ -8,7 +8,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import silverpancake.domain.entity.task.Task;
 import silverpancake.domain.entity.taskanswer.TaskAnswer;
-import silverpancake.domain.entity.taskanswer.TaskAnswerStatus;
 import silverpancake.domain.entity.team.Team;
 
 import java.time.LocalDateTime;
@@ -30,10 +29,6 @@ public class TeamFinalTaskAnswer {
     @CreationTimestamp
     @Column(name = "submitted_at", updatable = false)
     private LocalDateTime submittedAt;
-
-    @Enumerated(EnumType.STRING)
-    @Column(length = 32)
-    private TaskAnswerStatus status = TaskAnswerStatus.NOT_COMPLETED;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")

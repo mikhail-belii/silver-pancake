@@ -13,6 +13,7 @@ public class ErrorProperties {
     private String draftNotFound;
     private String taskNotFound;
     private String teamNotFound;
+    private String teamFinalTaskAnswerNotFound;
     private String invalidAccessToken;
     private String invalidRefreshToken;
     private String invalidWebsocketMessage;

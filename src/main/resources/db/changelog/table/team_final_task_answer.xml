@@ -51,4 +51,8 @@
                              constraintName="uk_team_final_task_answer_final_task_answer"/>
     </changeSet>
 
+    <changeSet id="RemoveStatusFromTeamFinalTaskAnswer" author="aleksey.z">
+        <dropColumn tableName="team_final_task_answer" columnName="status"/>
+    </changeSet>
+
 </databaseChangeLog>

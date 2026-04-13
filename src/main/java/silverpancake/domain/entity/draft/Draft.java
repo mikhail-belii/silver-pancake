@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import silverpancake.domain.entity.task.Task;
 import silverpancake.domain.entity.team.Team;
+import silverpancake.domain.entity.user.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,6 +26,10 @@ public class Draft {
 
     @OneToMany(mappedBy = "draft")
     private List<DraftPickTurn> draftPickTurns;
+
+    @OneToOne
+    @JoinColumn(name = "current_selecting_captain_id", referencedColumnName = "id")
+    private User currentSelectingCaptain;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "task_id", referencedColumnName = "id")

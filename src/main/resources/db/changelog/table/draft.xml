@@ -22,4 +22,13 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="AddCurrentSelectingCaptainId" author="KBelovodchenko">
+        <addColumn tableName="draft">
+            <column name="current_selecting_captain_id" type="UUID"/>
+        </addColumn>
+        <addForeignKeyConstraint baseTableName="draft" baseColumnNames="current_selecting_captain_id"
+                                 constraintName="fk_draft_user_selecting_captain" referencedTableName="user"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
 </databaseChangeLog>

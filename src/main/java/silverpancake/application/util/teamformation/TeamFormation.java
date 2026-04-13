@@ -1,6 +1,5 @@
 package silverpancake.application.util.teamformation;
 
-import silverpancake.domain.entity.course.Course;
 import silverpancake.domain.entity.task.Task;
 import silverpancake.domain.entity.team.Team;
 

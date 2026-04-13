@@ -52,6 +52,31 @@ public class DraftServiceImpl implements DraftService {
     }
 
     @Override
+    public void updateNextSelectingCaptain(Draft draft) {
+        List<DraftPickTurn> draftPickTurns = draft.getDraftPickTurns();
+        draftPickTurns.sort(Comparator.comparing(DraftPickTurn::getOrder));
+        DraftPickTurn draftPickTurnToRemove = draftPickTurns.removeFirst();
+
+        if (!draftPickTurns.isEmpty()) {
+            draft.setCurrentSelectingCaptain(draftPickTurns.getFirst().getUser());
+        }
+
+        draftPickTurnRepository.delete(draftPickTurnToRemove);
+        draftRepository.saveAndFlush(draft);
+
+        if (!draftPickTurns.isEmpty()) {
+            var message = new OrderOfSelectionChangedModel()
+                    .setDraftPickTurnModels(draftPickTurns
+                            .stream()
+                            .map(DraftMapper::toModel)
+                            .toList());
+            webSocketSender.sendOrderOfSelectionChangedMessage(
+                    message,
+                    draft.getId());
+        }
+    }
+
+    @Override
     public void createDraft(List<Team> teams, Task task) {
         Draft draft = new Draft()
                 .setTask(task)
@@ -145,6 +170,7 @@ public class DraftServiceImpl implements DraftService {
     public void startDraft(Draft draft) {
         draft.setIsStarted(true);
         draft.getDraftPickTurns().sort(Comparator.comparing(DraftPickTurn::getOrder));
+        draft.setCurrentSelectingCaptain(draft.getDraftPickTurns().getFirst().getUser());
 
         DraftModel draftModel = DraftMapper.toModel(draft);
 

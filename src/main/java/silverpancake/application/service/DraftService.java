@@ -11,6 +11,7 @@ import java.util.UUID;
 
 public interface DraftService {
     DraftModel getDraft(UUID userId, UUID id);
+    void updateNextSelectingCaptain(Draft draft);
     void createDraft(List<Team> teams, Task task);
     void createOrReloadDraftPickTurns(Task task, boolean isCreating);
     void startDraft(Draft draft);

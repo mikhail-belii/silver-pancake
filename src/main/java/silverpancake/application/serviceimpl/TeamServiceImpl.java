@@ -13,10 +13,12 @@ import silverpancake.application.service.TeamService;
 import silverpancake.application.util.ExceptionUtility;
 import silverpancake.application.util.TeamProperties;
 import silverpancake.application.util.teamformation.TeamFormationFactory;
+import silverpancake.application.util.teamformation.strategy.DraftTeamFormation;
 import silverpancake.domain.entity.task.Task;
 import silverpancake.domain.entity.task.TeamFormationType;
 import silverpancake.domain.entity.team.Team;
 import silverpancake.domain.entity.user.UserCourseRole;
+import silverpancake.domain.entity.usercourse.UserCourse;
 import silverpancake.domain.entity.userteam.UserTeam;
 
 import java.time.LocalDateTime;
@@ -34,6 +36,7 @@ public class TeamServiceImpl implements TeamService {
     private final TeamProperties teamProperties;
     private final TeamFormationFactory teamFormationFactory;
     private final ExceptionUtility exceptionUtility;
+    private final DraftTeamFormation draftTeamFormation;
 
     @Override
     @Transactional
@@ -157,9 +160,20 @@ public class TeamServiceImpl implements TeamService {
                 .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
 
         if (userCourse.getUserRole().equals(UserCourseRole.STUDENT)) {
-            throw exceptionUtility.securityException();
+            if (!Objects.equals(task.getDraft().getCurrentSelectingCaptain(), user)) {
+                throw exceptionUtility.securityException();
+            }
         }
 
+        var freeStudents = getFreeStudentsByTask(task)
+                .stream()
+                .map(UserCourseMapper::toModel)
+                .toList();
+
+        return new UserCourseListModel(freeStudents);
+    }
+
+    private List<UserCourse> getFreeStudentsByTask(Task task) {
         var busyStudentIds = new HashSet<UUID>();
         var teams = teamRepository.findTeamsByTask(task);
         for (var team : teams) {
@@ -172,14 +186,11 @@ public class TeamServiceImpl implements TeamService {
             }
         }
 
-        var freeStudents = task.getCourse().getCourseUsers()
+        return task.getCourse().getCourseUsers()
                 .stream()
                 .filter(courseUser -> courseUser.getUserRole().equals(UserCourseRole.STUDENT))
                 .filter(courseUser -> !busyStudentIds.contains(courseUser.getUser().getId()))
-                .map(UserCourseMapper::toModel)
                 .toList();
-
-        return new UserCourseListModel(freeStudents);
     }
 
     @Override
@@ -299,7 +310,10 @@ public class TeamServiceImpl implements TeamService {
         validateTaskDeadlineNotExpired(task);
 
         if (userCourse.getUserRole().equals(UserCourseRole.STUDENT)) {
-            throw exceptionUtility.securityException();
+            if (!Objects.equals(task.getDraft().getCurrentSelectingCaptain(), user)
+                || !Objects.equals(team.getCaptain(), user)) {
+                throw exceptionUtility.securityException();
+            }
         }
 
         var student = userRepository.findById(studentId)
@@ -340,6 +354,15 @@ public class TeamServiceImpl implements TeamService {
             team.setTeamMembers(new ArrayList<>());
         }
         team.getTeamMembers().add(userTeam);
+
+        if (task.getDraft() != null) {
+            draftTeamFormation.notifyOnStudentJoinedTeam(team);
+
+            if (getFreeStudentsByTask(task).isEmpty()) {
+                draftTeamFormation.notifyOnLastStudentJoinedTeam(team);
+            }
+
+        }
 
         return TeamMapper.toModel(team);
     }

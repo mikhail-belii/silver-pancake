@@ -183,6 +183,21 @@ public class TaskAnswerService {
         return TaskAnswerMapper.toModel(teamFinalTaskAnswer);
     }
 
+    public FinalTaskAnswerModel voteForAnswer(UUID requestingUserId, UUID taskId, UUID answerId) {
+        var task = taskRepository.findById(taskId)
+                .orElseThrow(exceptionUtility::taskNotFoundException);
+        var team = getRequestingUserTeam(requestingUserId, taskId);
+        checkIfUserInTeam(requestingUserId, team);
+
+        var taskAnswer = taskAnswerRepository.findById(answerId)
+                .orElseThrow(exceptionUtility::taskAnswerNotFoundException);
+        if (taskAnswer.getTask() == null || !taskAnswer.getTask().getId().equals(taskId)) {
+            throw exceptionUtility.taskAnswerNotFoundException();
+        }
+
+        return taskAnswerAttachmentService.attachAnswer(team, task, taskAnswer);
+    }
+
     public void selectAnswer(UUID requestingUserId, UUID taskId, UUID answerId) {
         var team = getRequestingUserTeam(requestingUserId, taskId);
         validateCaptainAccess(requestingUserId, team);

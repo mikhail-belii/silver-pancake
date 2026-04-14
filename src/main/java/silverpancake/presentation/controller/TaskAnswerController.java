@@ -100,9 +100,9 @@ public class TaskAnswerController {
 
     @PostMapping("task/{taskId}/answers/{answerId}/vote")
     @Operation(summary = "Отдать голос за ответ на задание. При повторном голосовании за тот же вариант, убирает голос")
-    public void voteForAnswer(@PathVariable UUID taskId, @PathVariable UUID answerId,
+    public FinalTaskAnswerModel voteForAnswer(@PathVariable UUID taskId, @PathVariable UUID answerId,
                               @RequestAttribute("authModel") AuthorizationModel authModel) {
-
+        return taskAnswerService.voteForAnswer(authModel.getUserId(), taskId, answerId);
     }
 
     @PostMapping("/task/{taskId}/answers/{answerId}/select")

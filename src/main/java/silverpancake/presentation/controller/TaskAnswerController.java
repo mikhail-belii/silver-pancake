@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import silverpancake.application.model.auth.AuthorizationModel;
 import silverpancake.application.model.file.FileModel;
 import silverpancake.application.model.finaltaskanswer.FinalTaskAnswerModel;
+import silverpancake.application.model.finaltaskanswer.FinalTaskAnswerModelWithAnswerId;
 import silverpancake.application.model.taskanswer.TaskAnswerModel;
 import silverpancake.application.serviceimpl.taskanswer.TaskAnswerService;
 
@@ -21,8 +22,8 @@ public class TaskAnswerController {
 
     @PostMapping("/task/{taskId}/answers")
     @Operation(summary = "Прикрепление ответа на задание, !!! возвращает модель финального задания команды")
-    public FinalTaskAnswerModel attachTaskAnswer(@PathVariable UUID taskId, @RequestBody List<FileModel> files,
-                                                 @RequestAttribute("authModel") AuthorizationModel authModel) {
+    public FinalTaskAnswerModelWithAnswerId attachTaskAnswer(@PathVariable UUID taskId, @RequestBody List<FileModel> files,
+                                                             @RequestAttribute("authModel") AuthorizationModel authModel) {
         return taskAnswerService.attachAnswer(taskId, files, authModel.getUserId());
     }
 

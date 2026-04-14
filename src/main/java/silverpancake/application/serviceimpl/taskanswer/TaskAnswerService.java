@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import silverpancake.application.mapper.TaskAnswerMapper;
 import silverpancake.application.model.file.FileModel;
 import silverpancake.application.model.finaltaskanswer.FinalTaskAnswerModel;
+import silverpancake.application.model.finaltaskanswer.FinalTaskAnswerModelWithAnswerId;
 import silverpancake.application.model.taskanswer.TaskAnswerModel;
 import silverpancake.application.repository.FileRepository;
 import silverpancake.application.repository.TaskAnswerRepository;
@@ -44,7 +45,7 @@ public class TaskAnswerService {
     private final UserTeamRepository userTeamRepository;
     private final ExceptionUtility exceptionUtility;
 
-    public FinalTaskAnswerModel attachAnswer(UUID taskId, List<FileModel> files, UUID requestingUserId) {
+    public FinalTaskAnswerModelWithAnswerId attachAnswer(UUID taskId, List<FileModel> files, UUID requestingUserId) {
         var task = taskRepository.findById(taskId)
                 .orElseThrow(exceptionUtility::taskNotFoundException);
         var user = userRepository.findById(requestingUserId)
@@ -55,7 +56,11 @@ public class TaskAnswerService {
 
         var taskAnswer = createTaskAnswer(task, user, files);
 
-        return taskAnswerAttachmentService.attachAnswer(team, task, taskAnswer);
+        var finalTaskAnswer = taskAnswerAttachmentService.attachAnswer(team, task, taskAnswer);
+
+        return new FinalTaskAnswerModelWithAnswerId()
+                .setFinalTaskAnswer(finalTaskAnswer)
+                .setNewTaskAnswerId(taskAnswer.getId());
     }
 
     public void createTaskAnswers(Task task) {

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import silverpancake.domain.entity.task.Task;
 import silverpancake.domain.entity.taskanswer.TaskAnswer;
@@ -26,8 +25,7 @@ public class TeamFinalTaskAnswer {
 
     private Integer score = 0;
 
-    @CreationTimestamp
-    @Column(name = "submitted_at", updatable = false)
+    @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

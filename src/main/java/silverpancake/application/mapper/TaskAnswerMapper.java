@@ -7,6 +7,7 @@ import silverpancake.application.model.taskanswer.TaskAnswerModel;
 import silverpancake.domain.entity.taskanswer.TaskAnswer;
 import silverpancake.domain.entity.taskanswer.TaskAnswerStatus;
 import silverpancake.domain.entity.teamfinaltaskanswer.TeamFinalTaskAnswer;
+import silverpancake.domain.entity.user.User;
 
 import java.util.ArrayList;
 
@@ -46,7 +47,7 @@ public class TaskAnswerMapper {
                 .setVotedUserIds(taskAnswer.getVotedUsers() == null ?
                         new ArrayList<>() :
                         taskAnswer.getVotedUsers().stream()
-                                .map(user -> user.getId())
+                                .map(User::getId)
                                 .toList())
                 .setUploadedAt(taskAnswer.getUploadedAt())
                 .setFiles(taskAnswer.getFiles() == null ?

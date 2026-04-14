@@ -109,6 +109,6 @@ public class TaskAnswerController {
     @Operation(summary = "[Капитан] Выбор ответа, который будет считаться финальным")
     public void selectAnswer(@PathVariable UUID taskId, @PathVariable UUID answerId,
                              @RequestAttribute("authModel") AuthorizationModel authModel) {
-
+        taskAnswerService.selectAnswer(authModel.getUserId(), taskId, answerId);
     }
 }

@@ -183,6 +183,27 @@ public class TaskAnswerService {
         return TaskAnswerMapper.toModel(teamFinalTaskAnswer);
     }
 
+    public void selectAnswer(UUID requestingUserId, UUID taskId, UUID answerId) {
+        var team = getRequestingUserTeam(requestingUserId, taskId);
+        validateCaptainAccess(requestingUserId, team);
+
+        var teamFinalTaskAnswer = teamFinalTaskAnswerRepository.findByTaskIdAndTeamId(taskId, team.getId())
+                .orElseThrow(exceptionUtility::teamFinalTaskAnswerNotFoundException);
+        var taskAnswer = taskAnswerRepository.findById(answerId)
+                .orElseThrow(exceptionUtility::taskAnswerNotFoundException);
+
+        if (taskAnswer.getTask() == null || !taskAnswer.getTask().getId().equals(taskId)) {
+            throw exceptionUtility.taskAnswerNotFoundException();
+        }
+
+        if (!isTaskAnswerBelongsToTeam(taskAnswer, team)) {
+            throw exceptionUtility.securityException();
+        }
+
+        teamFinalTaskAnswer.setFinalTaskAnswer(taskAnswer);
+        teamFinalTaskAnswerRepository.save(teamFinalTaskAnswer);
+    }
+
     private TeamFinalTaskAnswer getValidatedTeamFinalTaskAnswer(UUID requestingUserId, UUID taskId, UUID teamId) {
         taskRepository.findById(taskId)
                 .orElseThrow(exceptionUtility::taskNotFoundException);
@@ -246,6 +267,27 @@ public class TaskAnswerService {
 
     private boolean isTeamFinalTaskAnswerGraded(TeamFinalTaskAnswer teamFinalTaskAnswer) {
         return teamFinalTaskAnswer.getScore() != null && teamFinalTaskAnswer.getScore() > 0;
+    }
+
+    private void validateCaptainAccess(UUID requestingUserId, Team team) {
+        if (team.getCaptain() == null || !team.getCaptain().getId().equals(requestingUserId)) {
+            throw exceptionUtility.securityException();
+        }
+    }
+
+    private boolean isTaskAnswerBelongsToTeam(TaskAnswer taskAnswer, Team team) {
+        if (taskAnswer.getUser() == null) {
+            return false;
+        }
+
+        var answerUserId = taskAnswer.getUser().getId();
+        if (team.getCaptain() != null && team.getCaptain().getId().equals(answerUserId)) {
+            return true;
+        }
+
+        return team.getTeamMembers() != null && team.getTeamMembers().stream()
+                .anyMatch(teamMember -> teamMember.getUser() != null
+                        && teamMember.getUser().getId().equals(answerUserId));
     }
 
     private TaskAnswer createTaskAnswer(Task task, User user, List<FileModel> files) {

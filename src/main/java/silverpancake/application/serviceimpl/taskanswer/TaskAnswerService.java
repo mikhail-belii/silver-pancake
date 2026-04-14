@@ -112,6 +112,20 @@ public class TaskAnswerService {
                 .toList();
     }
 
+    public List<TaskAnswerModel> getAllUserVotedTaskAnswers(UUID requestingUserId, UUID taskId) {
+        var teamFinalTaskAnswer = getRequestingUserTeamFinalTaskAnswer(requestingUserId, taskId);
+        var finalAnswerId = teamFinalTaskAnswer.getFinalTaskAnswer() == null
+                ? null
+                : teamFinalTaskAnswer.getFinalTaskAnswer().getId();
+
+        return taskAnswerRepository.findAllByTaskIdAndVotedUsersIdOrderByUploadedAtDesc(taskId, requestingUserId).stream()
+                .map(taskAnswer -> TaskAnswerMapper.toModel(
+                        taskAnswer,
+                        taskAnswer.getId().equals(finalAnswerId)
+                ))
+                .toList();
+    }
+
     public List<TaskAnswerModel> getAllTeamTaskAnswers(UUID requestingUserId, UUID taskId, UUID teamId) {
         var teamFinalTaskAnswer = getValidatedTeamFinalTaskAnswer(requestingUserId, taskId, teamId);
         var team = teamFinalTaskAnswer.getTeam();

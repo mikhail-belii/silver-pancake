@@ -26,7 +26,7 @@ public class TaskAnswerMapper {
                         teamFinalTaskAnswer.getTask().toModel())
                 .setTeam(teamFinalTaskAnswer.getTeam() == null ?
                         null :
-                        teamFinalTaskAnswer.getTeam().toModel())
+                        TeamMapper.toModel(teamFinalTaskAnswer.getTeam(), null))
                 .setTaskAnswer(teamFinalTaskAnswer.getFinalTaskAnswer() == null ?
                         null :
                         toModel(teamFinalTaskAnswer.getFinalTaskAnswer(), true));

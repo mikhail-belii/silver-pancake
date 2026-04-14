@@ -18,4 +18,6 @@ public class TeamModel {
     private String name;
     private UserModel captain;
     private List<UserModel> members;
+    private Boolean isMember;
+    private Boolean isCaptain;
 }

@@ -48,7 +48,7 @@ public class DraftTeamFormation implements TeamFormation {
         Draft draft = team.getDraft();
         if (draft.getIsEnded() == false) {
             TeamStructureChanged teamStructureChanged = new TeamStructureChanged()
-                    .setChangedTeam(TeamMapper.toModel(team));
+                    .setChangedTeam(TeamMapper.toModel(team, null));
 
             webSocketSender.sendTeamStructureChangedMessage(teamStructureChanged, draft.getId());
             draftService.updateNextSelectingCaptain(draft);
@@ -58,7 +58,7 @@ public class DraftTeamFormation implements TeamFormation {
     public void notifyOnStudentRemovedFromTeam(Team team) {
         if (team.getDraft().getIsEnded() == false) {
             TeamStructureChanged teamStructureChanged = new TeamStructureChanged()
-                    .setChangedTeam(TeamMapper.toModel(team));
+                    .setChangedTeam(TeamMapper.toModel(team, null));
 
             webSocketSender.sendTeamStructureChangedMessage(teamStructureChanged, team.getDraft().getId());
             draftService.createOrReloadDraftPickTurns(team.getTask(), false);

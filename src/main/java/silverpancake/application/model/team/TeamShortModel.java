@@ -14,4 +14,6 @@ import java.util.UUID;
 public class TeamShortModel {
     private UUID id;
     private String name;
+    private Boolean isMember;
+    private Boolean isCaptain;
 }

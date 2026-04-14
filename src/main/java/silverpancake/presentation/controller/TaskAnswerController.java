@@ -29,6 +29,13 @@ public class TaskAnswerController {
         return taskAnswerService.attachAnswer(taskId, files, authModel.getUserId());
     }
 
+    @DeleteMapping("/task/{taskId}/answers/{taskAnswerId}")
+    @Operation(summary = "Открепление ответа от задания, !!! возвращает модель финального задания команды")
+    public FinalTaskAnswerModelWithAnswerId unattachTaskAnswer(@PathVariable UUID taskId, @PathVariable UUID taskAnswerId,
+                                                             @RequestAttribute("authModel") AuthorizationModel authModel) {
+        return null;
+    }
+
     @GetMapping("/task/{taskId}/team/{teamId}/final")
     @Operation(summary = "Получение финального ответа команды")
     public FinalTaskAnswerModel getTeamFinalAnswer(@PathVariable UUID taskId, @PathVariable UUID teamId,

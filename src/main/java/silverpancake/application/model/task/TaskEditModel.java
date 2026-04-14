@@ -1,11 +1,9 @@
 package silverpancake.application.model.task;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import silverpancake.domain.entity.task.TeamFormationType;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,16 +26,6 @@ public class TaskEditModel {
     @NotNull
     @Future(message = "Дата дедлайна должна быть в будущем")
     private LocalDateTime deadlineTime;
-    @Future(message = "Дата драфта должна быть в будущем")
-    private LocalDateTime draftStartTime;
     @NotNull
     private List<UUID> fileIds;
-
-    @JsonIgnore
-    public boolean isDraftStartTimeAfterDeadline() {
-        if (getDraftStartTime() == null) {
-            return false;
-        }
-        return getDraftStartTime().isAfter(getDeadlineTime());
-    }
 }

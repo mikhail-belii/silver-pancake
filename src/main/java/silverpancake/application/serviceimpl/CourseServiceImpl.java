@@ -4,25 +4,35 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import silverpancake.application.mapper.CourseMapper;
+import silverpancake.application.mapper.TeamMapper;
 import silverpancake.application.mapper.UserCourseMapper;
 import silverpancake.application.model.course.*;
 import silverpancake.application.repository.CourseRepository;
 import silverpancake.application.repository.UserCourseRepository;
 import silverpancake.application.repository.UserRepository;
 import silverpancake.application.service.CourseService;
+import silverpancake.application.service.TeamService;
 import silverpancake.application.util.CourseCodeGenerator;
 import silverpancake.application.util.CourseUtility;
 import silverpancake.application.util.ExceptionUtility;
 import silverpancake.application.util.teamformation.TeamFormationFactory;
 import silverpancake.application.util.teamformation.strategy.DraftTeamFormation;
 import silverpancake.domain.entity.course.Course;
+import silverpancake.domain.entity.draft.Draft;
+import silverpancake.domain.entity.task.Task;
+import silverpancake.domain.entity.team.Team;
 import silverpancake.domain.entity.user.User;
 import silverpancake.domain.entity.user.UserCourseRole;
 import silverpancake.domain.entity.usercourse.UserCourse;
+import silverpancake.presentation.websocket.model.draft.TeamStructureChanged;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
+
+import static silverpancake.domain.entity.task.TeamFormationType.DRAFT;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +44,7 @@ public class CourseServiceImpl  implements CourseService {
     private final ExceptionUtility exceptionUtility;
     private final CourseMapper courseMapper;
     private final DraftTeamFormation draftTeamFormation;
+    private final TeamService teamService;
 
     @Override
     @Transactional
@@ -145,6 +156,11 @@ public class CourseServiceImpl  implements CourseService {
 
         if (!CourseUtility.isUserAvailableToChangeOtherUserRoleOnCourse(course, userToChange, newUserRole, user)) {
             throw exceptionUtility.securityException();
+        }
+
+        if (Objects.equals(userCourse.getUserRole(), UserCourseRole.STUDENT)
+            && Objects.equals(newUserRole, UserCourseRole.TEACHER)) {
+            teamService.removeUserFromCourseTeams(course, userToChange);
         }
 
         userCourse.setUserRole(newUserRole);

@@ -15,7 +15,6 @@ import silverpancake.application.util.ExceptionUtility;
 import silverpancake.domain.entity.course.Course;
 import silverpancake.domain.entity.file.File;
 import silverpancake.domain.entity.task.Task;
-import silverpancake.domain.entity.task.TeamFormationType;
 import silverpancake.domain.entity.user.User;
 import silverpancake.domain.entity.user.UserCourseRole;
 
@@ -83,18 +82,6 @@ public class TaskServiceImpl implements TaskService {
 
         if (userCourse.getUserRole().equals(UserCourseRole.STUDENT)) {
             throw exceptionUtility.securityException();
-        }
-
-        if (!task.getTeamFormationType().equals(TeamFormationType.DRAFT) && taskEditModel.getDraftStartTime() != null) {
-            throw exceptionUtility.notDraftTypeAndDraftTimeException();
-        }
-
-        if (task.getTeamFormationType().equals(TeamFormationType.DRAFT) && taskEditModel.getDraftStartTime() == null) {
-            throw exceptionUtility.draftTypeAndNotDraftTimeException();
-        }
-
-        if (taskEditModel.isDraftStartTimeAfterDeadline()) {
-            throw exceptionUtility.draftTimeAfterDeadlineException();
         }
 
         task.setTitle(taskEditModel.getTitle())

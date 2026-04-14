@@ -4,13 +4,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import silverpancake.application.mapper.DraftMapper;
-import silverpancake.application.mapper.TeamMapper;
 import silverpancake.application.model.draft.DraftModel;
-import silverpancake.application.model.draft.DraftPickTurnModel;
-import silverpancake.application.model.team.TeamModel;
 import silverpancake.application.repository.*;
 import silverpancake.application.service.DraftService;
-import silverpancake.application.service.TeamService;
 import silverpancake.application.util.DraftPickTurnShuffler;
 import silverpancake.application.util.ExceptionUtility;
 import silverpancake.domain.entity.course.Course;
@@ -46,8 +42,10 @@ public class DraftServiceImpl implements DraftService {
         if (!canUserObserveDraft(userId, draftId)) {
             throw exceptionUtility.draftIsNotObservableByUserException();
         }
+
         Draft draft = draftRepository.findById(draftId).orElseThrow(exceptionUtility::draftNotFoundException);
         draft.getDraftPickTurns().sort(Comparator.comparing(DraftPickTurn::getOrder));
+
         return DraftMapper.toModel(draft);
     }
 
@@ -59,6 +57,8 @@ public class DraftServiceImpl implements DraftService {
 
         if (!draftPickTurns.isEmpty()) {
             draft.setCurrentSelectingCaptain(draftPickTurns.getFirst().getUser());
+        } else {
+            draft.setCurrentSelectingCaptain(null);
         }
 
         draftPickTurnRepository.delete(draftPickTurnToRemove);
@@ -104,33 +104,46 @@ public class DraftServiceImpl implements DraftService {
                 .stream()
                 .map(Team::getCaptain)
                 .toList();
-        List<UserCourse> freeStudents = getStudentsToDraft(draft);
+        Integer[] countOfSelectedStudents = new Integer[1];
+        countOfSelectedStudents[0] = 0;
+        List<UserCourse> freeStudents = getStudentsToDraft(draft, countOfSelectedStudents);
 
         if (captains.size() != draft.getTeams().size()) {
             throw exceptionUtility.teamsHaveNotEnoughCaptainsException();
         }
 
-        List<User> captainsPickOrder = draftPickTurnShuffler.getShuffledCaptainsByStudents(
-                captains,
-                freeStudents.size());
-        List<DraftPickTurn> draftPickTurns = mapCaptainsPickOrderToDraftPickTurn(captainsPickOrder, draft);
+        List<DraftPickTurn> draftPickTurns;
+        if (isCreating) {
+            List<User> captainsPickOrder = draftPickTurnShuffler.getShuffledCaptainsByStudents(
+                    captains,
+                    freeStudents.size());
+            draftPickTurns = mapCaptainsPickOrderToDraftPickTurn(captainsPickOrder, draft);
 
-        draftPickTurnRepository.deleteByDraftId(draft.getId());
-        draftPickTurnRepository.saveAllAndFlush(draftPickTurns);
+            draftPickTurnRepository.deleteByDraftId(draft.getId());
+            draftPickTurnRepository.saveAllAndFlush(draftPickTurns);
+        } else {
+            if (!draft.getIsEnded()) {
+                draftPickTurns = draftPickTurnShuffler.continueCaptainsByStudents(
+                        captains,
+                        draft.getDraftPickTurns(),
+                        freeStudents.size(),
+                        countOfSelectedStudents[0],
+                        draft);
+                draftPickTurnRepository.saveAllAndFlush(draftPickTurns);
 
-        if (!isCreating) {
-            var message = new OrderOfSelectionChangedModel()
-                    .setDraftPickTurnModels(draftPickTurns
-                            .stream()
-                            .map(DraftMapper::toModel)
-                            .toList());
-            webSocketSender.sendOrderOfSelectionChangedMessage(
-                    message,
-                    draft.getId());
+                var message = new OrderOfSelectionChangedModel()
+                        .setDraftPickTurnModels(draftPickTurns
+                                .stream()
+                                .map(DraftMapper::toModel)
+                                .toList());
+                webSocketSender.sendOrderOfSelectionChangedMessage(
+                        message,
+                        draft.getId());
+            }
         }
     }
 
-    private List<UserCourse> getStudentsToDraft(Draft draft) {
+    private List<UserCourse> getStudentsToDraft(Draft draft, Integer[] countOfSelectedStudents) {
         List<UUID> alreadySelectedStudentIds = new ArrayList<>();
         draft.getTeams().forEach(team -> {
                     alreadySelectedStudentIds.addAll(team
@@ -142,8 +155,8 @@ public class DraftServiceImpl implements DraftService {
                         alreadySelectedStudentIds.add(team.getCaptain().getId());
                     }
                 }
-
         );
+        countOfSelectedStudents[0] = alreadySelectedStudentIds.size();
         return draft
                 .getTask()
                 .getCourse()
@@ -177,6 +190,14 @@ public class DraftServiceImpl implements DraftService {
         draftRepository.saveAndFlush(draft);
 
         webSocketSender.sendDraftStartedMessage(draftModel);
+    }
+
+    @Override
+    public void endDraft(Draft draft) {
+        draft.setIsEnded(true);
+        draftRepository.saveAndFlush(draft);
+
+        webSocketSender.sendDraftEndedMessage(draft.getId());
     }
 
     @Override

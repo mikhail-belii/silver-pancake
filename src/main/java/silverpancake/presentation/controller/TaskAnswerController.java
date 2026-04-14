@@ -31,9 +31,9 @@ public class TaskAnswerController {
 
     @DeleteMapping("/task/{taskId}/answers/{taskAnswerId}")
     @Operation(summary = "Открепление ответа от задания, !!! возвращает модель финального задания команды")
-    public FinalTaskAnswerModelWithAnswerId unattachTaskAnswer(@PathVariable UUID taskId, @PathVariable UUID taskAnswerId,
+    public FinalTaskAnswerModel unattachTaskAnswer(@PathVariable UUID taskId, @PathVariable UUID taskAnswerId,
                                                              @RequestAttribute("authModel") AuthorizationModel authModel) {
-        return null;
+        return taskAnswerService.unattachTaskAnswer(authModel.getUserId(), taskId, taskAnswerId);
     }
 
     @GetMapping("/task/{taskId}/team/{teamId}/final")

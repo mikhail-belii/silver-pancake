@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 public class TaskAnswerService {
 
     private final TaskAnswerAttachmentService taskAnswerAttachmentService;
+    private final TaskAnswerDeclineService taskAnswerDeclineService;
     private final UserRepository userRepository;
     private final FileRepository fileRepository;
     private final TaskRepository taskRepository;
@@ -64,6 +65,21 @@ public class TaskAnswerService {
         return new FinalTaskAnswerModelWithAnswerId()
                 .setFinalTaskAnswer(finalTaskAnswer)
                 .setNewTaskAnswerId(taskAnswer.getId());
+    }
+
+    public FinalTaskAnswerModel unattachTaskAnswer(UUID requestingUserId, UUID taskId, UUID taskAnswerId) {
+        var task = taskRepository.findById(taskId)
+                .orElseThrow(exceptionUtility::taskNotFoundException);
+        var team = getRequestingUserTeam(requestingUserId, taskId);
+        checkIfUserInTeam(requestingUserId, team);
+
+        var taskAnswer = taskAnswerRepository.findById(taskAnswerId)
+                .orElseThrow(exceptionUtility::taskAnswerNotFoundException);
+        if (taskAnswer.getTask() == null || !taskAnswer.getTask().getId().equals(taskId)) {
+            throw exceptionUtility.taskAnswerNotFoundException();
+        }
+
+        return taskAnswerDeclineService.declineAnswer(team, task, taskAnswer);
     }
 
     public void createTaskAnswers(Task task) {

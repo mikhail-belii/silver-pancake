@@ -8,5 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface TaskAnswerRepository extends JpaRepository<TaskAnswer, UUID> {
+    List<TaskAnswer> findAllByTaskIdAndUserIdOrderByUploadedAtDesc(UUID taskId, UUID userId);
+
     List<TaskAnswer> findAllByTaskIdAndUserIdInOrderByUploadedAtDesc(UUID taskId, Collection<UUID> userIds);
 }

@@ -46,6 +46,13 @@ public class TaskAnswerController {
         return taskAnswerService.getTeamFinalTaskAnswer(teamFinalTaskAnswerId);
     }
 
+    @GetMapping("/task/{taskId}/my-attached")
+    @Operation(summary = "Получение всех TaskAnswer текущего пользователя по заданию")
+    public List<TaskAnswerModel> getAllUserTaskAnswers(@PathVariable UUID taskId,
+                                                       @RequestAttribute("authModel") AuthorizationModel authModel) {
+        return taskAnswerService.getAllUserTaskAnswers(authModel.getUserId(), taskId);
+    }
+
     @GetMapping("/task/{taskId}/team/{teamId}/all")
     @Operation(summary = "Получение всех ответов команды")
     public List<TaskAnswerModel> getAllTeamTaskAnswers(@PathVariable UUID taskId, @PathVariable UUID teamId,

@@ -73,7 +73,7 @@ public class TeamServiceImpl implements TeamService {
                 .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
         var teams = teamRepository.findTeamsByTask(task);
 
-        return new TeamShortListModel(teams.stream().map(TeamMapper::toShortModel).toList());
+        return new TeamShortListModel(teams.stream().map(team -> TeamMapper.toShortModel(team, requestingUserId)).toList());
     }
 
     @Override
@@ -87,7 +87,23 @@ public class TeamServiceImpl implements TeamService {
         userCourseRepository.findByUserAndCourse(user.getId(), task.getCourse().getId())
                 .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
 
-        return TeamMapper.toModel(team);
+        return TeamMapper.toModel(team, requestingUserId);
+    }
+
+    @Override
+    public TeamModel getMyTeam(UUID requestingUserId, UUID taskId) {
+        var user = userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
+        var task = taskRepository.findById(taskId)
+                .orElseThrow(exceptionUtility::taskNotFoundException);
+        userCourseRepository.findByUserAndCourse(user.getId(), task.getCourse().getId())
+                .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
+
+        var team = teamRepository.findByCaptainIdAndTaskId(requestingUserId, taskId)
+                .or(() -> teamRepository.findByTaskIdAndTeamMembersUserId(taskId, requestingUserId))
+                .orElseThrow(exceptionUtility::teamNotFoundException);
+
+        return TeamMapper.toModel(team, requestingUserId);
     }
 
     @Override
@@ -143,7 +159,7 @@ public class TeamServiceImpl implements TeamService {
 
         checkAndDoLastCaptainSelectionLogic(task);
 
-        return TeamMapper.toModel(team);
+        return TeamMapper.toModel(team, requestingUserId);
     }
 
     private void checkAndDoLastCaptainSelectionLogic(Task task) {
@@ -251,7 +267,7 @@ public class TeamServiceImpl implements TeamService {
         }
         team.getTeamMembers().add(userTeam);
 
-        return TeamMapper.toModel(team);
+        return TeamMapper.toModel(team, requestingUserId);
     }
 
     @Override
@@ -280,7 +296,7 @@ public class TeamServiceImpl implements TeamService {
             team.setCaptain(null);
             teamRepository.save(team);
 
-            return TeamMapper.toModel(team);
+            return TeamMapper.toModel(team, requestingUserId);
         }
 
         var studentUserTeam = userTeamRepository.findByUserIdAndTeamTaskId(user.getId(), task.getId());
@@ -298,7 +314,7 @@ public class TeamServiceImpl implements TeamService {
             team.getTeamMembers().removeIf(teamMember -> teamMember.getId().equals(userTeam.getId()));
         }
 
-        return TeamMapper.toModel(team);
+        return TeamMapper.toModel(team, requestingUserId);
     }
 
     @Override
@@ -369,7 +385,7 @@ public class TeamServiceImpl implements TeamService {
             }
         }
 
-        return TeamMapper.toModel(team);
+        return TeamMapper.toModel(team, requestingUserId);
     }
 
     @Override
@@ -403,7 +419,7 @@ public class TeamServiceImpl implements TeamService {
             team.setCaptain(null);
             teamRepository.save(team);
 
-            return TeamMapper.toModel(team);
+            return TeamMapper.toModel(team, requestingUserId);
         }
 
         var studentUserTeam = userTeamRepository.findByUserIdAndTeamTaskId(teamMember.getId(), task.getId());
@@ -421,7 +437,7 @@ public class TeamServiceImpl implements TeamService {
             team.getTeamMembers().removeIf(teamMemberEntity -> teamMemberEntity.getId().equals(userTeam.getId()));
         }
 
-        return TeamMapper.toModel(team);
+        return TeamMapper.toModel(team, requestingUserId);
     }
 
     public void removeUserFromCourseTeams(Course course, User user) {

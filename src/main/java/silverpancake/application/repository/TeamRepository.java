@@ -13,4 +13,5 @@ import java.util.UUID;
 public interface TeamRepository extends JpaRepository<Team, UUID> {
     List<Team> findTeamsByTask(Task task);
     Optional<Team> findByCaptainIdAndTaskId(UUID captainId, UUID taskId);
+    Optional<Team> findByTaskIdAndTeamMembersUserId(UUID taskId, UUID userId);
 }

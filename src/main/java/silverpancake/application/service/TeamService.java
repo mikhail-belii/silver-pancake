@@ -14,6 +14,7 @@ public interface TeamService {
     void createTeamsOnTaskCreated(Task task, Integer teamsAmount, TeamFormationType teamFormationType);
     TeamShortListModel getTeams(UUID requestingUserId, UUID taskId);
     TeamModel getTeam(UUID requestingUserId, UUID teamId);
+    TeamModel getMyTeam(UUID requestingUserId, UUID taskId);
     TeamModel assignTeamCaptain(UUID requestingUserId, UUID teamId, UUID studentId);
     UserCourseListModel getFreeStudentsForTask(UUID requestingUserId, UUID taskId);
     TeamModel joinTeam(UUID requestingUserId, UUID teamId);

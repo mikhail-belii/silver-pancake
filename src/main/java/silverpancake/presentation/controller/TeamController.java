@@ -32,6 +32,13 @@ public class TeamController {
         return Response.success(teamService.getTeam(authModel.getUserId(), teamId));
     }
 
+    @GetMapping("my")
+    @Operation(summary = "Get requesting user's team for task")
+    public Response<TeamModel> getMyTeam(@RequestAttribute("authModel") AuthorizationModel authModel,
+                                         @PathVariable UUID taskId) {
+        return Response.success(teamService.getMyTeam(authModel.getUserId(), taskId));
+    }
+
     @PostMapping("{teamId}/captain/{studentId}")
     @Operation(summary = "Assign captain to concrete team (only for teachers)")
     public Response<TeamModel> assignTeamCaptain(@RequestAttribute("authModel") AuthorizationModel authModel,

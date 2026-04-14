@@ -15,6 +15,7 @@ public interface DraftService {
     void createDraft(List<Team> teams, Task task);
     void createOrReloadDraftPickTurns(Task task, boolean isCreating);
     void startDraft(Draft draft);
+    void endDraft(Draft draft);
     List<Draft> getCurrentDraftsByCourse(Course course);
     boolean canUserObserveDraft(UUID userId, UUID draftId);
 }

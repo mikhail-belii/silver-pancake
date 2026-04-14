@@ -14,15 +14,21 @@ import silverpancake.application.util.ExceptionUtility;
 import silverpancake.application.util.TeamProperties;
 import silverpancake.application.util.teamformation.TeamFormationFactory;
 import silverpancake.application.util.teamformation.strategy.DraftTeamFormation;
+import silverpancake.domain.entity.course.Course;
+import silverpancake.domain.entity.draft.Draft;
 import silverpancake.domain.entity.task.Task;
 import silverpancake.domain.entity.task.TeamFormationType;
 import silverpancake.domain.entity.team.Team;
+import silverpancake.domain.entity.user.User;
 import silverpancake.domain.entity.user.UserCourseRole;
 import silverpancake.domain.entity.usercourse.UserCourse;
 import silverpancake.domain.entity.userteam.UserTeam;
+import silverpancake.presentation.websocket.model.draft.TeamStructureChanged;
 
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static silverpancake.domain.entity.task.TeamFormationType.DRAFT;
 
 @Service
 @RequiredArgsConstructor
@@ -355,13 +361,12 @@ public class TeamServiceImpl implements TeamService {
         }
         team.getTeamMembers().add(userTeam);
 
-        if (task.getDraft() != null) {
+        if (DRAFT.equals(task.getTeamFormationType())) {
             draftTeamFormation.notifyOnStudentJoinedTeam(team);
 
             if (getFreeStudentsByTask(task).isEmpty()) {
-                draftTeamFormation.notifyOnLastStudentJoinedTeam(team);
+                draftTeamFormation.notifyOnLastStudentJoinedTeam(task.getDraft());
             }
-
         }
 
         return TeamMapper.toModel(team);
@@ -417,6 +422,32 @@ public class TeamServiceImpl implements TeamService {
         }
 
         return TeamMapper.toModel(team);
+    }
+
+    public void removeUserFromCourseTeams(Course course, User user) {
+        for (Task task : course.getTasks()) {
+            Draft draft = task.getDraft();
+            Optional<Team> teamToChange = task.getTeams()
+                    .stream()
+                    .filter(t -> t.getTeamMembers()
+                            .stream()
+                            .anyMatch(u -> Objects.equals(u.getUser(), user))
+                            || Objects.equals(t.getCaptain(), user)
+                    ).findFirst();
+
+            if (teamToChange.isPresent()) {
+                var teamMembers = teamToChange.get().getTeamMembers();
+                var teamMemberToDelete = teamMembers.stream().filter(t -> Objects.equals(t.getUser(), user)).findFirst();
+                teamToChange.get().getTeamMembers().remove(teamMemberToDelete.get());
+                userTeamRepository.delete(teamMemberToDelete.get());
+                teamRepository.saveAndFlush(teamToChange.get());
+
+                if (DRAFT.equals(task.getTeamFormationType()) && draft.getIsEnded() == false) {
+                    draftTeamFormation.notifyOnStudentRemovedFromTeam(teamToChange.get());
+                }
+
+            }
+        }
     }
 
 

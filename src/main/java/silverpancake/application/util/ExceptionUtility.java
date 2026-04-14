@@ -60,6 +60,24 @@ public class ExceptionUtility {
         return notFoundEx;
     }
 
+    public ExceptionWrapper teamFinalTaskAnswerNotSubmittedException() {
+        var badRequestEx = new ExceptionWrapper(new BadRequestException());
+        badRequestEx.setErrorMessage(errorProperties.getTeamFinalTaskAnswerNotSubmitted());
+        return badRequestEx;
+    }
+
+    public ExceptionWrapper taskAnswerAlreadyGradedCannotUnsubmitException() {
+        var badRequestEx = new ExceptionWrapper(new BadRequestException());
+        badRequestEx.setErrorMessage(errorProperties.getTaskAnswerAlreadyGradedCannotUnsubmit());
+        return badRequestEx;
+    }
+
+    public ExceptionWrapper taskAnswerScoreOutOfRangeException() {
+        var badRequestEx = new ExceptionWrapper(new BadRequestException());
+        badRequestEx.setErrorMessage(errorProperties.getTaskAnswerScoreOutOfRange());
+        return badRequestEx;
+    }
+
     public ExceptionWrapper userWithEmailExistsException() {
         var badRequestEx = new ExceptionWrapper(new BadRequestException());
         badRequestEx.setErrorMessage(errorProperties.getUserWithEmailExists());

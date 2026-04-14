@@ -1,10 +1,12 @@
 package silverpancake.presentation.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import silverpancake.application.model.auth.AuthorizationModel;
 import silverpancake.application.model.file.FileModel;
+import silverpancake.application.model.finaltaskanswer.FinalTaskAnswerGradeModel;
 import silverpancake.application.model.finaltaskanswer.FinalTaskAnswerModel;
 import silverpancake.application.model.finaltaskanswer.FinalTaskAnswerModelWithAnswerId;
 import silverpancake.application.model.taskanswer.TaskAnswerModel;
@@ -72,6 +74,14 @@ public class TaskAnswerController {
     public void unsubmitTaskAnswer(@PathVariable UUID taskId,
                                  @RequestAttribute("authModel") AuthorizationModel authModel) {
         taskAnswerService.unsubmitTaskAnswer(authModel.getUserId(), taskId);
+    }
+
+    @PostMapping("/final/{teamFinalTaskAnswerId}/grade")
+    @Operation(summary = "Оценить TeamFinalTaskAnswer")
+    public FinalTaskAnswerModel gradeTaskAnswer(@PathVariable UUID teamFinalTaskAnswerId,
+                                                @Valid @RequestBody FinalTaskAnswerGradeModel gradeModel,
+                                                @RequestAttribute("authModel") AuthorizationModel authModel) {
+        return taskAnswerService.gradeTaskAnswer(authModel.getUserId(), teamFinalTaskAnswerId, gradeModel.getScore());
     }
 
     @PostMapping("task/{taskId}/answers/{answerId}/vote")

@@ -12,6 +12,7 @@ import silverpancake.application.repository.TaskAnswerRepository;
 import silverpancake.application.repository.TaskRepository;
 import silverpancake.application.repository.TeamRepository;
 import silverpancake.application.repository.TeamFinalTaskAnswerRepository;
+import silverpancake.application.repository.UserCourseRepository;
 import silverpancake.application.repository.UserRepository;
 import silverpancake.application.repository.UserTeamRepository;
 import silverpancake.application.util.ExceptionUtility;
@@ -21,6 +22,7 @@ import silverpancake.domain.entity.taskanswer.TaskAnswer;
 import silverpancake.domain.entity.team.Team;
 import silverpancake.domain.entity.teamfinaltaskanswer.TeamFinalTaskAnswer;
 import silverpancake.domain.entity.user.User;
+import silverpancake.domain.entity.user.UserCourseRole;
 import silverpancake.domain.entity.userteam.UserTeam;
 
 import java.time.LocalDateTime;
@@ -42,6 +44,7 @@ public class TaskAnswerService {
     private final TeamRepository teamRepository;
     private final TaskAnswerRepository taskAnswerRepository;
     private final TeamFinalTaskAnswerRepository teamFinalTaskAnswerRepository;
+    private final UserCourseRepository userCourseRepository;
     private final UserTeamRepository userTeamRepository;
     private final ExceptionUtility exceptionUtility;
 
@@ -146,8 +149,24 @@ public class TaskAnswerService {
 
     public void unsubmitTaskAnswer(UUID requestingUserId, UUID taskId) {
         var teamFinalTaskAnswer = getRequestingUserTeamFinalTaskAnswer(requestingUserId, taskId);
+        if (isTeamFinalTaskAnswerGraded(teamFinalTaskAnswer)) {
+            throw exceptionUtility.taskAnswerAlreadyGradedCannotUnsubmitException();
+        }
         teamFinalTaskAnswer.setSubmittedAt(null);
         teamFinalTaskAnswerRepository.save(teamFinalTaskAnswer);
+    }
+
+    public FinalTaskAnswerModel gradeTaskAnswer(UUID requestingUserId, UUID teamFinalTaskAnswerId, Integer score) {
+        var teamFinalTaskAnswer = teamFinalTaskAnswerRepository.findById(teamFinalTaskAnswerId)
+                .orElseThrow(exceptionUtility::teamFinalTaskAnswerNotFoundException);
+
+        validateUserCanGradeTaskAnswer(requestingUserId, teamFinalTaskAnswer);
+        validateTaskAnswerCanBeGraded(teamFinalTaskAnswer, score);
+
+        teamFinalTaskAnswer.setScore(score);
+        teamFinalTaskAnswerRepository.save(teamFinalTaskAnswer);
+
+        return TaskAnswerMapper.toModel(teamFinalTaskAnswer);
     }
 
     private TeamFinalTaskAnswer getValidatedTeamFinalTaskAnswer(UUID requestingUserId, UUID taskId, UUID teamId) {
@@ -184,6 +203,35 @@ public class TaskAnswerService {
         return captainTeam.orElseGet(() -> userTeamRepository.findByUserIdAndTeamTaskId(requestingUserId, taskId)
                 .map(UserTeam::getTeam)
                 .orElseThrow(exceptionUtility::teamNotFoundException));
+    }
+
+    private void validateUserCanGradeTaskAnswer(UUID requestingUserId, TeamFinalTaskAnswer teamFinalTaskAnswer) {
+        var task = teamFinalTaskAnswer.getTask();
+        if (task == null || task.getCourse() == null) {
+            throw exceptionUtility.taskNotFoundException();
+        }
+
+        var userCourse = userCourseRepository.findByUserAndCourse(requestingUserId, task.getCourse().getId())
+                .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
+
+        if (userCourse.getUserRole().equals(UserCourseRole.STUDENT)) {
+            throw exceptionUtility.securityException();
+        }
+    }
+
+    private void validateTaskAnswerCanBeGraded(TeamFinalTaskAnswer teamFinalTaskAnswer, Integer score) {
+        if (teamFinalTaskAnswer.getSubmittedAt() == null) {
+            throw exceptionUtility.teamFinalTaskAnswerNotSubmittedException();
+        }
+
+        var task = teamFinalTaskAnswer.getTask();
+        if (task == null || task.getMaxScore() == null || score == null || score < 1 || score > task.getMaxScore()) {
+            throw exceptionUtility.taskAnswerScoreOutOfRangeException();
+        }
+    }
+
+    private boolean isTeamFinalTaskAnswerGraded(TeamFinalTaskAnswer teamFinalTaskAnswer) {
+        return teamFinalTaskAnswer.getScore() != null && teamFinalTaskAnswer.getScore() > 0;
     }
 
     private TaskAnswer createTaskAnswer(Task task, User user, List<FileModel> files) {

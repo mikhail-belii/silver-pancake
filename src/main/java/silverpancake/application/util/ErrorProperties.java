@@ -12,6 +12,7 @@ public class ErrorProperties {
     private String courseNotFound;
     private String draftNotFound;
     private String taskNotFound;
+    private String taskAnswerNotFound;
     private String teamNotFound;
     private String teamFinalTaskAnswerNotFound;
     private String invalidAccessToken;

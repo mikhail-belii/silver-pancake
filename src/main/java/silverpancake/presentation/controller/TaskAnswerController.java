@@ -34,6 +34,18 @@ public class TaskAnswerController {
         return taskAnswerService.getTeamFinalAnswer(authModel.getUserId(), taskId, teamId);
     }
 
+    @GetMapping("/{answerId}")
+    @Operation(summary = "Получение TaskAnswer по id")
+    public TaskAnswerModel getTaskAnswer(@PathVariable UUID answerId) {
+        return taskAnswerService.getTaskAnswer(answerId);
+    }
+
+    @GetMapping("/final/{teamFinalTaskAnswerId}")
+    @Operation(summary = "Получение TeamFinalTaskAnswer по id")
+    public FinalTaskAnswerModel getTeamFinalTaskAnswer(@PathVariable UUID teamFinalTaskAnswerId) {
+        return taskAnswerService.getTeamFinalTaskAnswer(teamFinalTaskAnswerId);
+    }
+
     @GetMapping("/task/{taskId}/team/{teamId}/all")
     @Operation(summary = "Получение всех ответов команды")
     public List<TaskAnswerModel> getAllTeamTaskAnswers(@PathVariable UUID taskId, @PathVariable UUID teamId,

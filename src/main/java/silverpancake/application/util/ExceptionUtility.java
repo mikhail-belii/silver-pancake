@@ -42,6 +42,12 @@ public class ExceptionUtility {
         return notFoundEx;
     }
 
+    public ExceptionWrapper taskAnswerNotFoundException() {
+        var notFoundEx = new ExceptionWrapper(new EntityNotFoundException());
+        notFoundEx.setErrorMessage(errorProperties.getTaskAnswerNotFound());
+        return notFoundEx;
+    }
+
     public ExceptionWrapper teamNotFoundException() {
         var notFoundEx = new ExceptionWrapper(new EntityNotFoundException());
         notFoundEx.setErrorMessage(errorProperties.getTeamNotFound());

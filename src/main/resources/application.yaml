@@ -135,6 +135,7 @@ app:
     course-not-found: Курс не найден
     draft-not-found: Драфт не найден
     task-not-found: Задание не найдено
+    task-answer-not-found: Ответ на задание не найден
     team-not-found: Команда не найдена
     team-final-task-answer-not-found: Финальный ответ команды не найден
 

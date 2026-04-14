@@ -83,6 +83,18 @@ public class TaskAnswerService {
         return TaskAnswerMapper.toModel(teamFinalTaskAnswer);
     }
 
+    public TaskAnswerModel getTaskAnswer(UUID answerId) {
+        var taskAnswer = taskAnswerRepository.findById(answerId)
+                .orElseThrow(exceptionUtility::taskAnswerNotFoundException);
+        return TaskAnswerMapper.toModel(taskAnswer, false);
+    }
+
+    public FinalTaskAnswerModel getTeamFinalTaskAnswer(UUID teamFinalTaskAnswerId) {
+        var teamFinalTaskAnswer = teamFinalTaskAnswerRepository.findById(teamFinalTaskAnswerId)
+                .orElseThrow(exceptionUtility::teamFinalTaskAnswerNotFoundException);
+        return TaskAnswerMapper.toModel(teamFinalTaskAnswer);
+    }
+
     public List<TaskAnswerModel> getAllTeamTaskAnswers(UUID requestingUserId, UUID taskId, UUID teamId) {
         var teamFinalTaskAnswer = getValidatedTeamFinalTaskAnswer(requestingUserId, taskId, teamId);
         var team = teamFinalTaskAnswer.getTeam();

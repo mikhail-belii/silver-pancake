@@ -63,7 +63,7 @@ public class VoteServiceImpl {
 
         return taskAnswerRepository.findAllByTaskIdAndUserIdInOrderByUploadedAtDesc(task.getId(), teamUserIds).stream()
                 .filter(answer -> answer.getVotedUsers() != null
-                        && answer.getVotedUsers().size() * 100 > percent * teamUserIds.size())
+                        && answer.getVotedUsers().size() * 100 >= percent * teamUserIds.size())
                 .min(Comparator.comparing(TaskAnswer::getUploadedAt))
                 .orElse(null);
     }

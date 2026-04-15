@@ -72,6 +72,12 @@ public class ExceptionUtility {
         return badRequestEx;
     }
 
+    public ExceptionWrapper taskAnswerCannotBeUnattachedException() {
+        var badRequestEx = new ExceptionWrapper(new BadRequestException());
+        badRequestEx.setErrorMessage(errorProperties.getTaskAnswerCannotBeUnattached());
+        return badRequestEx;
+    }
+
     public ExceptionWrapper taskAnswerScoreOutOfRangeException() {
         var badRequestEx = new ExceptionWrapper(new BadRequestException());
         badRequestEx.setErrorMessage(errorProperties.getTaskAnswerScoreOutOfRange());

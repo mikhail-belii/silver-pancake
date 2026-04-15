@@ -140,6 +140,7 @@ app:
     team-final-task-answer-not-found: Финальный ответ команды не найден
     team-final-task-answer-not-submitted: Нельзя оценить неотправленный ответ
     task-answer-already-graded-cannot-unsubmit: Нельзя отменить отправку уже оцененного ответа
+    task-answer-cannot-be-unattached: Нельзя открепить ответ после отправки или оценивания
     task-answer-score-out-of-range: Оценка должна быть в диапазоне от 1 до максимального балла задания
 
     invalid-access-token: Токен доступа некорректный или истек

@@ -17,6 +17,7 @@ public class ErrorProperties {
     private String teamFinalTaskAnswerNotFound;
     private String teamFinalTaskAnswerNotSubmitted;
     private String taskAnswerAlreadyGradedCannotUnsubmit;
+    private String taskAnswerCannotBeUnattached;
     private String taskAnswerScoreOutOfRange;
     private String invalidAccessToken;
     private String invalidRefreshToken;

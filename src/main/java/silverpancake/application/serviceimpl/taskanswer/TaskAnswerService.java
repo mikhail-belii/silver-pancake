@@ -72,12 +72,20 @@ public class TaskAnswerService {
                 .orElseThrow(exceptionUtility::taskNotFoundException);
         var team = getRequestingUserTeam(requestingUserId, taskId);
         checkIfUserInTeam(requestingUserId, team);
+        var teamFinalTaskAnswer = teamFinalTaskAnswerRepository.findByTaskIdAndTeamId(taskId, team.getId())
+                .orElseThrow(exceptionUtility::teamFinalTaskAnswerNotFoundException);
 
         var taskAnswer = taskAnswerRepository.findById(taskAnswerId)
                 .orElseThrow(exceptionUtility::taskAnswerNotFoundException);
         if (taskAnswer.getTask() == null || !taskAnswer.getTask().getId().equals(taskId)) {
             throw exceptionUtility.taskAnswerNotFoundException();
         }
+
+        if (!isTaskAnswerBelongsToTeam(taskAnswer, team)) {
+            throw exceptionUtility.securityException();
+        }
+
+        validateTaskAnswerCanBeUnattached(teamFinalTaskAnswer);
 
         return taskAnswerDeclineService.declineAnswer(team, task, taskAnswer);
     }
@@ -298,6 +306,12 @@ public class TaskAnswerService {
 
     private boolean isTeamFinalTaskAnswerGraded(TeamFinalTaskAnswer teamFinalTaskAnswer) {
         return teamFinalTaskAnswer.getScore() != null && teamFinalTaskAnswer.getScore() > 0;
+    }
+
+    private void validateTaskAnswerCanBeUnattached(TeamFinalTaskAnswer teamFinalTaskAnswer) {
+        if (teamFinalTaskAnswer.getSubmittedAt() != null || isTeamFinalTaskAnswerGraded(teamFinalTaskAnswer)) {
+            throw exceptionUtility.taskAnswerCannotBeUnattachedException();
+        }
     }
 
     private void validateCaptainAccess(UUID requestingUserId, Team team) {

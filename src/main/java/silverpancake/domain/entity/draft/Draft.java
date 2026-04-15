@@ -9,7 +9,10 @@ import silverpancake.domain.entity.task.Task;
 import silverpancake.domain.entity.team.Team;
 import silverpancake.domain.entity.user.User;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,5 +44,15 @@ public class Draft {
     private Boolean isEnded;
 
     private Boolean isStarted;
+
+    private LocalDateTime lastPickTime;
+
+    public Long getTimeToPick() {
+        if (lastPickTime == null) {
+            return null;
+        }
+        Duration duration = Duration.between(lastPickTime, LocalDateTime.now());
+        return Math.max(60L - duration.getSeconds(), 0);
+    }
 
 }

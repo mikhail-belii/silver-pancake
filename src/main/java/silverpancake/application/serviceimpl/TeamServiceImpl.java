@@ -445,23 +445,40 @@ public class TeamServiceImpl implements TeamService {
             Draft draft = task.getDraft();
             Optional<Team> teamToChange = task.getTeams()
                     .stream()
-                    .filter(t -> t.getTeamMembers()
+                    .filter(t -> (t.getTeamMembers() != null && t.getTeamMembers()
                             .stream()
-                            .anyMatch(u -> Objects.equals(u.getUser(), user))
+                            .anyMatch(u -> Objects.equals(u.getUser(), user)))
                             || Objects.equals(t.getCaptain(), user)
                     ).findFirst();
 
             if (teamToChange.isPresent()) {
-                var teamMembers = teamToChange.get().getTeamMembers();
-                var teamMemberToDelete = teamMembers.stream().filter(t -> Objects.equals(t.getUser(), user)).findFirst();
-                teamToChange.get().getTeamMembers().remove(teamMemberToDelete.get());
-                userTeamRepository.delete(teamMemberToDelete.get());
-                teamRepository.saveAndFlush(teamToChange.get());
+                var team = teamToChange.get();
+                boolean userRemoved = false;
 
-                if (DRAFT.equals(task.getTeamFormationType()) && draft.getIsEnded() == false) {
-                    draftTeamFormation.notifyOnStudentRemovedFromTeam(teamToChange.get());
+                if (Objects.equals(team.getCaptain(), user)) {
+                    team.setCaptain(null);
+                    userRemoved = true;
                 }
 
+                if (team.getTeamMembers() != null) {
+                    var teamMemberToDelete = team.getTeamMembers().stream()
+                            .filter(t -> Objects.equals(t.getUser(), user))
+                            .findFirst();
+
+                    if (teamMemberToDelete.isPresent()) {
+                        team.getTeamMembers().remove(teamMemberToDelete.get());
+                        userTeamRepository.delete(teamMemberToDelete.get());
+                        userRemoved = true;
+                    }
+                }
+
+                if (userRemoved) {
+                    teamRepository.saveAndFlush(team);
+
+                    if (DRAFT.equals(task.getTeamFormationType()) && draft != null && Boolean.FALSE.equals(draft.getIsEnded())) {
+                        draftTeamFormation.notifyOnStudentRemovedFromTeam(team);
+                    }
+                }
             }
         }
     }

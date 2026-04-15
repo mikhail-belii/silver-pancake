@@ -379,10 +379,6 @@ public class TeamServiceImpl implements TeamService {
 
         if (DRAFT.equals(task.getTeamFormationType())) {
             draftTeamFormation.notifyOnStudentJoinedTeam(team);
-
-            if (getFreeStudentsByTask(task).isEmpty()) {
-                draftTeamFormation.notifyOnLastStudentJoinedTeam(task.getDraft());
-            }
         }
 
         return TeamMapper.toModel(team, requestingUserId);

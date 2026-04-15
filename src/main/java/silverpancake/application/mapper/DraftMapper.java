@@ -20,7 +20,8 @@ public class DraftMapper {
                 .setDraftPickTurns(draft.getDraftPickTurns().stream().map(DraftMapper::toModel).toList())
                 .setTeams(draft.getTeams().stream().map(t -> TeamMapper.toModel(t, null)).toList())
                 .setIsStarted(draft.getIsStarted())
-                .setIsEnded(draft.getIsEnded());
+                .setIsEnded(draft.getIsEnded())
+                .setTimeToPick(draft.getTimeToPick());
     }
 
     public DraftPickTurnModel toModel(DraftPickTurn draftPickTurn) {

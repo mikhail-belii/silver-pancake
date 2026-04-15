@@ -3,7 +3,9 @@ package silverpancake.application.serviceimpl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 import silverpancake.application.mapper.DraftMapper;
+import silverpancake.application.mapper.TeamMapper;
 import silverpancake.application.model.draft.DraftModel;
 import silverpancake.application.repository.*;
 import silverpancake.application.service.DraftService;
@@ -16,10 +18,14 @@ import silverpancake.domain.entity.task.Task;
 import silverpancake.domain.entity.team.Team;
 import silverpancake.domain.entity.user.User;
 import silverpancake.domain.entity.usercourse.UserCourse;
+import silverpancake.domain.entity.userteam.UserTeam;
 import silverpancake.presentation.websocket.WebSocketSender;
 import silverpancake.presentation.websocket.model.draft.OrderOfSelectionChangedModel;
+import silverpancake.presentation.websocket.model.draft.TeamStructureChanged;
 
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static silverpancake.domain.entity.user.UserCourseRole.STUDENT;
 
@@ -27,7 +33,13 @@ import static silverpancake.domain.entity.user.UserCourseRole.STUDENT;
 @RequiredArgsConstructor
 public class DraftServiceImpl implements DraftService {
 
+    private final TransactionTemplate transactionTemplate;
+
     private final DraftRepository draftRepository;
+
+    private final TeamRepository teamRepository;
+
+    private final UserTeamRepository userTeamRepository;
 
     private final WebSocketSender webSocketSender;
 
@@ -57,6 +69,7 @@ public class DraftServiceImpl implements DraftService {
 
         if (!draftPickTurns.isEmpty()) {
             draft.setCurrentSelectingCaptain(draftPickTurns.getFirst().getUser());
+
         } else {
             draft.setCurrentSelectingCaptain(null);
         }
@@ -65,6 +78,14 @@ public class DraftServiceImpl implements DraftService {
         draftRepository.saveAndFlush(draft);
 
         if (!draftPickTurns.isEmpty()) {
+            Team captainTeam = draft.getTeams()
+                    .stream()
+                    .filter(t -> Objects.equals(t.getCaptain(), draft.getCurrentSelectingCaptain()))
+                    .findFirst()
+                    .get();
+
+            startPickTimerForDraft(draft, draftPickTurns.getFirst().getId(), captainTeam.getId());
+
             var message = new OrderOfSelectionChangedModel()
                     .setDraftPickTurnModels(draftPickTurns
                             .stream()
@@ -73,7 +94,57 @@ public class DraftServiceImpl implements DraftService {
             webSocketSender.sendOrderOfSelectionChangedMessage(
                     message,
                     draft.getId());
+        } else {
+            endDraft(draft);
         }
+    }
+
+    private void startPickTimerForDraft(Draft draft, UUID draftPickTurnId, UUID teamId) {
+        draft.setLastPickTime(LocalDateTime.now());
+        draftRepository.saveAndFlush(draft);
+
+        Timer timer = new Timer();
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                transactionTemplate.execute(status -> {
+                    var currentDraftState = draftRepository.findById(draft.getId());
+                    if (currentDraftState.isEmpty() || currentDraftState.get().getIsEnded() == true) {
+                        return null;
+                    }
+                    var draftNewState = currentDraftState.get();
+                    var nextDraftPickTurn = draftNewState.getDraftPickTurns().stream().min(Comparator.comparing(DraftPickTurn::getOrder)).get();
+                    if (draftPickTurnId.equals(nextDraftPickTurn.getId())) {
+                        draftPickTurnRepository.deleteById(draftPickTurnId);
+
+                        var shuffledFreeStudents = getStudentsToDraft(draftNewState, new Integer[1]);
+                        var randomUserCourse = shuffledFreeStudents.get(ThreadLocalRandom.current().nextInt(shuffledFreeStudents.size()));
+
+                        var team = teamRepository.findById(teamId).get();
+                        var currentTeamMembers = team.getTeamMembers();
+                        var userTeam = new UserTeam()
+                                .setUser(randomUserCourse.getUser())
+                                .setTeam(team)
+                                .setCreatedAt(LocalDateTime.now());
+                        currentTeamMembers.add(userTeam);
+                        userTeamRepository.saveAndFlush(userTeam);
+
+                        webSocketSender.sendAutoSelectionPerformedMessage(
+                                draftNewState.getCurrentSelectingCaptain().getId(),
+                                draft.getId()
+                        );
+                        webSocketSender.sendTeamStructureChangedMessage(
+                                new TeamStructureChanged()
+                                        .setChangedTeam(TeamMapper.toModel(team, null)),
+                                draftNewState.getId());
+
+                        updateNextSelectingCaptain(draftNewState);
+                    }
+                    return null;
+                });
+            }
+        }, 60 * 1000);
     }
 
     @Override
@@ -189,12 +260,21 @@ public class DraftServiceImpl implements DraftService {
 
         draftRepository.saveAndFlush(draft);
 
+        Team captainTeam = draft.getTeams()
+                .stream()
+                .filter(t -> Objects.equals(t.getCaptain(), draft.getCurrentSelectingCaptain()))
+                .findFirst()
+                .get();
+
+        startPickTimerForDraft(draft, draft.getDraftPickTurns().getFirst().getId(), captainTeam.getId());
+
         webSocketSender.sendDraftStartedMessage(draftModel);
     }
 
     @Override
     public void endDraft(Draft draft) {
         draft.setIsEnded(true);
+        draft.setLastPickTime(null);
         draftRepository.saveAndFlush(draft);
 
         webSocketSender.sendDraftEndedMessage(draft.getId());

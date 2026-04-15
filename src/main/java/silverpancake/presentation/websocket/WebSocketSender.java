@@ -33,6 +33,19 @@ public class WebSocketSender {
         });
     }
 
+    public void sendAutoSelectionPerformedMessage(UUID userId, UUID draftId) {
+        List<AuthenticatedSocketSession> sessionsToSend = websocketSessionManager.getSessionsByUserId(userId, draftId);
+
+        sessionsToSend.forEach(session -> {
+            try {
+                session.getSession().sendMessage(webSocketParser
+                        .serializeObjectToWebSocketResponse(WebSocketResponseType.AUTO_SELECTION_PERFORMED, null));
+            } catch (IOException e) {
+                websocketSessionManager.returnError(session.getSession(), e.getMessage());
+            }
+        });
+    }
+
     public void sendOrderOfSelectionChangedMessage(
             OrderOfSelectionChangedModel orderOfSelectionChangedModel,
             UUID draftId

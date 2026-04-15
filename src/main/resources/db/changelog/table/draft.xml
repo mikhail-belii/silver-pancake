@@ -31,4 +31,10 @@
                                  referencedColumnNames="id"/>
     </changeSet>
 
+    <changeSet id="AddLastPickTime" author="KBelovodchenko">
+        <addColumn tableName="draft">
+            <column name="last_pick_time" type="timestamp"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

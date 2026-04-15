@@ -24,4 +24,6 @@ public class DraftModel {
 
     private Boolean isEnded;
 
+    private Long timeToPick;
+
 }

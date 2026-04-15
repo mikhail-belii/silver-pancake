@@ -48,6 +48,15 @@ public class WebsocketSessionManager extends TextWebSocketHandler {
                 .toList();
     }
 
+    public List<AuthenticatedSocketSession> getSessionsByUserId(UUID userId, UUID draftId) {
+        return sessions.values()
+                .stream()
+                .filter(s -> s.getAuthorizationModel() != null
+                        && Objects.equals(s.getAuthorizationModel().getUserId(), userId)
+                        && Objects.equals(s.getObservableDraftId(), draftId))
+                .toList();
+    }
+
     public void addNewSession(AuthenticatedSocketSession session) {
         sessions.put(session.getSession().getId(), session);
     }

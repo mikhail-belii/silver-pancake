@@ -181,8 +181,8 @@ jwt:
     access: dmVyeS1zdHJvbmctc2VjcmV0LWZvci1hY2Nlc3MtdG9rZW4tMDAx
     refresh: dmVyeS1zdHJvbmctc2VjcmV0LWZvci1yZWZyZXNoLXRva2VuLTAwMg==
   lifetime:
-    access-minutes: 50
-    refresh-days: 30
+    access-minutes: 43200
+    refresh-days: 365
 
 file-storage-root: files/uploads
 

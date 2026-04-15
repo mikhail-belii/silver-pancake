@@ -65,12 +65,6 @@ public class DraftTeamFormation implements TeamFormation {
         }
     }
 
-    public void notifyOnLastStudentJoinedTeam(Draft draft) {
-        if (draft.getIsEnded() == false) {
-            draftService.endDraft(draft);
-        }
-    }
-
     @Override
     public void onLastCaptainSelection(Task task) {
         draftService.createOrReloadDraftPickTurns(task, true);

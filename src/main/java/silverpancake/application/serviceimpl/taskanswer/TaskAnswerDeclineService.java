@@ -8,7 +8,6 @@ import silverpancake.application.model.finaltaskanswer.FinalTaskAnswerModel;
 import silverpancake.application.repository.FileRepository;
 import silverpancake.application.repository.TaskAnswerRepository;
 import silverpancake.application.repository.TeamFinalTaskAnswerRepository;
-import silverpancake.application.serviceimpl.VoteServiceImpl;
 import silverpancake.application.util.ExceptionUtility;
 import silverpancake.domain.entity.file.File;
 import silverpancake.domain.entity.task.Task;
@@ -27,7 +26,6 @@ public class TaskAnswerDeclineService {
     private final TaskAnswerRepository taskAnswerRepository;
     private final TeamFinalTaskAnswerRepository teamFinalTaskAnswerRepository;
     private final FileRepository fileRepository;
-    private final VoteServiceImpl voteService;
     private final ExceptionUtility exceptionUtility;
 
     @Transactional
@@ -57,27 +55,59 @@ public class TaskAnswerDeclineService {
         }
 
         return switch (finalizationType) {
-            case FIRST_ATTACHMENT -> findEarliestTaskAnswer(team, task);
-            case LAST_ATTACHMENT -> findLatestTaskAnswer(team, task);
+            case FIRST_ATTACHMENT -> findEarliestTaskAnswer(team, task, declinedTaskAnswer);
+            case LAST_ATTACHMENT -> findLatestTaskAnswer(team, task, declinedTaskAnswer);
             case CAPTAIN_CHOOSE -> null;
-            case MOST_VOTES -> voteService.findTaskAnswerWithVotesPercentageMoreThan(team, task, declinedTaskAnswer, 50);
-            case QUALIFIED_MAJORITY -> voteService.findTaskAnswerWithVotesPercentageMoreThan(team, task, declinedTaskAnswer, 67);
+            case MOST_VOTES -> findTaskAnswerWithVotesPercentageMoreThan(team, task, declinedTaskAnswer, 50);
+            case QUALIFIED_MAJORITY -> findTaskAnswerWithVotesPercentageMoreThan(team, task, declinedTaskAnswer, 67);
         };
     }
 
-    private TaskAnswer findEarliestTaskAnswer(Team team, Task task) {
-        return findAllTeamTaskAnswers(team, task).stream()
+    private TaskAnswer findEarliestTaskAnswer(Team team, Task task, TaskAnswer declinedTaskAnswer) {
+        return findAllRemainingTeamTaskAnswers(team, task, declinedTaskAnswer).stream()
                 .min(Comparator.comparing(TaskAnswer::getUploadedAt))
                 .orElse(null);
     }
 
-    private TaskAnswer findLatestTaskAnswer(Team team, Task task) {
-        return findAllTeamTaskAnswers(team, task).stream()
+    private TaskAnswer findLatestTaskAnswer(Team team, Task task, TaskAnswer declinedTaskAnswer) {
+        return findAllRemainingTeamTaskAnswers(team, task, declinedTaskAnswer).stream()
                 .max(Comparator.comparing(TaskAnswer::getUploadedAt))
                 .orElse(null);
     }
 
+    private TaskAnswer findTaskAnswerWithVotesPercentageMoreThan(Team team,
+                                                                 Task task,
+                                                                 TaskAnswer declinedTaskAnswer,
+                                                                 int percent) {
+        var teamUserIds = getTeamUserIds(team);
+        if (teamUserIds.isEmpty()) {
+            return null;
+        }
+
+        return findAllRemainingTeamTaskAnswers(team, task, declinedTaskAnswer).stream()
+                .filter(answer -> answer.getVotedUsers() != null
+                        && answer.getVotedUsers().size() * 100 > percent * teamUserIds.size())
+                .min(Comparator.comparing(TaskAnswer::getUploadedAt))
+                .orElse(null);
+    }
+
+    private ArrayList<TaskAnswer> findAllRemainingTeamTaskAnswers(Team team, Task task, TaskAnswer declinedTaskAnswer) {
+        var declinedTaskAnswerId = declinedTaskAnswer.getId();
+        return findAllTeamTaskAnswers(team, task).stream()
+                .filter(taskAnswer -> !taskAnswer.getId().equals(declinedTaskAnswerId))
+                .collect(java.util.stream.Collectors.toCollection(ArrayList::new));
+    }
+
     private ArrayList<TaskAnswer> findAllTeamTaskAnswers(Team team, Task task) {
+        var teamUserIds = getTeamUserIds(team);
+        if (teamUserIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return new ArrayList<>(taskAnswerRepository.findAllByTaskIdAndUserIdInOrderByUploadedAtDesc(task.getId(), teamUserIds));
+    }
+
+    private HashSet<UUID> getTeamUserIds(Team team) {
         var teamUserIds = new HashSet<UUID>();
         if (team.getCaptain() != null) {
             teamUserIds.add(team.getCaptain().getId());
@@ -90,8 +120,7 @@ public class TaskAnswerDeclineService {
                 }
             });
         }
-
-        return new ArrayList<>(taskAnswerRepository.findAllByTaskIdAndUserIdInOrderByUploadedAtDesc(task.getId(), teamUserIds));
+        return teamUserIds;
     }
 
     private void detachTaskAnswerFiles(TaskAnswer taskAnswer) {

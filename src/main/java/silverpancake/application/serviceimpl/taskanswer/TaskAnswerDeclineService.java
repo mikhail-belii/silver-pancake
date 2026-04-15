@@ -38,14 +38,14 @@ public class TaskAnswerDeclineService {
         boolean wasFinal = teamFinalTaskAnswer.getFinalTaskAnswer() != null
                 && teamFinalTaskAnswer.getFinalTaskAnswer().getId().equals(taskAnswer.getId());
 
+        if (wasFinal) {
+            teamFinalTaskAnswer.setFinalTaskAnswer(resolveNextFinalTaskAnswer(team, task, taskAnswer));
+            teamFinalTaskAnswer = teamFinalTaskAnswerRepository.saveAndFlush(teamFinalTaskAnswer);
+        }
+
         detachTaskAnswerFiles(taskAnswer);
         taskAnswerRepository.delete(taskAnswer);
         taskAnswerRepository.flush();
-
-        if (wasFinal) {
-            teamFinalTaskAnswer.setFinalTaskAnswer(resolveNextFinalTaskAnswer(team, task, taskAnswer));
-            teamFinalTaskAnswer = teamFinalTaskAnswerRepository.save(teamFinalTaskAnswer);
-        }
 
         return TaskAnswerMapper.toModel(teamFinalTaskAnswer);
     }

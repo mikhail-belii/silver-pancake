@@ -106,7 +106,7 @@ public class TaskAnswerService {
     }
 
     public FinalTaskAnswerModel getTeamFinalAnswer(UUID requestingUserId, UUID taskId, UUID teamId) {
-        var teamFinalTaskAnswer = getValidatedTeamFinalTaskAnswer(requestingUserId, taskId, teamId);
+        var teamFinalTaskAnswer = getValidatedTeamFinalTaskAnswerForView(requestingUserId, taskId, teamId);
         return TaskAnswerMapper.toModel(teamFinalTaskAnswer);
     }
 
@@ -260,6 +260,25 @@ public class TaskAnswerService {
                 .orElseThrow(exceptionUtility::teamNotFoundException);
     }
 
+    private TeamFinalTaskAnswer getValidatedTeamFinalTaskAnswerForView(UUID requestingUserId, UUID taskId, UUID teamId) {
+        var task = taskRepository.findById(taskId)
+                .orElseThrow(exceptionUtility::taskNotFoundException);
+
+        var team = teamRepository.findById(teamId)
+                .orElseThrow(exceptionUtility::teamNotFoundException);
+
+        if (team.getTask() == null || !team.getTask().getId().equals(taskId)) {
+            throw exceptionUtility.teamNotFoundException();
+        }
+
+        if (!isUserInTeam(requestingUserId, team)) {
+            validateTeacherAccess(requestingUserId, task);
+        }
+
+        return teamFinalTaskAnswerRepository.findByTaskIdAndTeamId(taskId, teamId)
+                .orElseThrow(exceptionUtility::teamNotFoundException);
+    }
+
     private TeamFinalTaskAnswer getRequestingUserTeamFinalTaskAnswer(UUID requestingUserId, UUID taskId) {
         taskRepository.findById(taskId)
                 .orElseThrow(exceptionUtility::taskNotFoundException);
@@ -311,6 +330,19 @@ public class TaskAnswerService {
     private void validateTaskAnswerCanBeUnattached(TeamFinalTaskAnswer teamFinalTaskAnswer) {
         if (teamFinalTaskAnswer.getSubmittedAt() != null || isTeamFinalTaskAnswerGraded(teamFinalTaskAnswer)) {
             throw exceptionUtility.taskAnswerCannotBeUnattachedException();
+        }
+    }
+
+    private void validateTeacherAccess(UUID requestingUserId, Task task) {
+        if (task.getCourse() == null) {
+            throw exceptionUtility.taskNotFoundException();
+        }
+
+        var userCourse = userCourseRepository.findByUserAndCourse(requestingUserId, task.getCourse().getId())
+                .orElseThrow(exceptionUtility::requestingUserNotCourseMemberException);
+
+        if (userCourse.getUserRole().equals(UserCourseRole.STUDENT)) {
+            throw exceptionUtility.securityException();
         }
     }
 
@@ -394,13 +426,17 @@ public class TaskAnswerService {
     }
 
     private void checkIfUserInTeam(UUID requestingUserId, Team team) {
+        if (!isUserInTeam(requestingUserId, team)) {
+            throw exceptionUtility.securityException();
+        }
+    }
+
+    private boolean isUserInTeam(UUID requestingUserId, Team team) {
         boolean isCaptain = team.getCaptain() != null && team.getCaptain().getId().equals(requestingUserId);
         boolean isMember = team.getTeamMembers() != null && team.getTeamMembers().stream()
                 .anyMatch(teamMember -> teamMember.getUser() != null
                         && teamMember.getUser().getId().equals(requestingUserId));
 
-        if (!isCaptain && !isMember) {
-            throw exceptionUtility.securityException();
-        }
+        return isCaptain || isMember;
     }
 }

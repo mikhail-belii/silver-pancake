@@ -35,6 +35,18 @@ public class VoteServiceImpl {
         voteForAnswer(user, team, taskAnswer);
     }
 
+    public void voteForAnswer(User user, Team team, Task task, TaskAnswer taskAnswer) {
+        if (user == null) {
+            throw exceptionUtility.userNotFoundException();
+        }
+
+        if (taskAnswer.getTask() == null || !taskAnswer.getTask().getId().equals(task.getId())) {
+            throw exceptionUtility.taskAnswerNotFoundException();
+        }
+
+        voteForAnswer(user, team, taskAnswer);
+    }
+
     public TaskAnswer findTaskAnswerWithVotesPercentageMoreThan(Team team, Task task, TaskAnswer taskAnswer, int percent) {
         if (taskAnswer.getTask() == null || !taskAnswer.getTask().getId().equals(task.getId())) {
             throw exceptionUtility.taskAnswerNotFoundException();

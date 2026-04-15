@@ -15,6 +15,8 @@ import silverpancake.application.repository.TeamFinalTaskAnswerRepository;
 import silverpancake.application.repository.UserCourseRepository;
 import silverpancake.application.repository.UserRepository;
 import silverpancake.application.repository.UserTeamRepository;
+import silverpancake.application.serviceimpl.VoteServiceImpl;
+import silverpancake.application.serviceimpl.taskanswer.strategy.TaskAnswerFinalizationType;
 import silverpancake.application.util.ExceptionUtility;
 import silverpancake.domain.entity.file.File;
 import silverpancake.domain.entity.task.Task;
@@ -47,6 +49,7 @@ public class TaskAnswerService {
     private final TeamFinalTaskAnswerRepository teamFinalTaskAnswerRepository;
     private final UserCourseRepository userCourseRepository;
     private final UserTeamRepository userTeamRepository;
+    private final VoteServiceImpl voteService;
     private final ExceptionUtility exceptionUtility;
 
     public FinalTaskAnswerModelWithAnswerId attachAnswer(UUID taskId, List<FileModel> files, UUID requestingUserId) {
@@ -210,6 +213,8 @@ public class TaskAnswerService {
     public FinalTaskAnswerModel voteForAnswer(UUID requestingUserId, UUID taskId, UUID answerId) {
         var task = taskRepository.findById(taskId)
                 .orElseThrow(exceptionUtility::taskNotFoundException);
+        var user = userRepository.findById(requestingUserId)
+                .orElseThrow(exceptionUtility::userNotFoundException);
         var team = getRequestingUserTeam(requestingUserId, taskId);
         checkIfUserInTeam(requestingUserId, team);
 
@@ -219,7 +224,17 @@ public class TaskAnswerService {
             throw exceptionUtility.taskAnswerNotFoundException();
         }
 
-        return taskAnswerAttachmentService.attachAnswer(team, task, taskAnswer);
+        voteService.voteForAnswer(user, team, task, taskAnswer);
+
+        var teamFinalTaskAnswer = teamFinalTaskAnswerRepository.findByTaskIdAndTeamId(taskId, team.getId())
+                .orElseThrow(exceptionUtility::teamFinalTaskAnswerNotFoundException);
+
+        teamFinalTaskAnswer.setFinalTaskAnswer(
+                resolveFinalTaskAnswerAfterVote(teamFinalTaskAnswer, team, task, taskAnswer)
+        );
+        teamFinalTaskAnswerRepository.save(teamFinalTaskAnswer);
+
+        return TaskAnswerMapper.toModel(teamFinalTaskAnswer);
     }
 
     public void selectAnswer(UUID requestingUserId, UUID taskId, UUID answerId) {
@@ -258,6 +273,17 @@ public class TaskAnswerService {
 
         return teamFinalTaskAnswerRepository.findByTaskIdAndTeamId(taskId, teamId)
                 .orElseThrow(exceptionUtility::teamNotFoundException);
+    }
+
+    private TaskAnswer resolveFinalTaskAnswerAfterVote(TeamFinalTaskAnswer teamFinalTaskAnswer,
+                                                       Team team,
+                                                       Task task,
+                                                       TaskAnswer taskAnswer) {
+        return switch (task.getTaskAnswerFinalizationType()) {
+            case MOST_VOTES -> voteService.findTaskAnswerWithVotesPercentageMoreThan(team, task, taskAnswer, 50);
+            case QUALIFIED_MAJORITY -> voteService.findTaskAnswerWithVotesPercentageMoreThan(team, task, taskAnswer, 67);
+            default -> teamFinalTaskAnswer.getFinalTaskAnswer();
+        };
     }
 
     private TeamFinalTaskAnswer getValidatedTeamFinalTaskAnswerForView(UUID requestingUserId, UUID taskId, UUID teamId) {
